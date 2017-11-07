@@ -1,0 +1,21 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.dmlab.bawoori.dmlib">
+
+    <permission android:name="com.dmlab.bawoori.dmlib.contentprovidersample.provider.READ_WRITE"/>
+
+    <application
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        tools:ignore="GoogleAppIndexingWarning">
+
+
+        <provider
+            android:name=".provider.SampleContentProvider"
+            android:authorities="com.dmlab.bawoori.dmlib.contentprovidersample.provider"
+            android:exported="true"
+            android:process=":bawoori"
+            android:permission="com.dmlab.bawoori.dmlib.contentprovidersample.provider.READ_WRITE"/>
+
+    </application>
+</manifest>
