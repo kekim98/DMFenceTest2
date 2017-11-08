@@ -33,10 +33,9 @@ import android.util.Log;
 import com.dmlab.bawoori.dmlib.data.Cheese;
 import com.dmlab.bawoori.dmlib.data.CheeseDao;
 import com.dmlab.bawoori.dmlib.data.SampleDatabase;
+import com.dmlab.bawoori.dmlib.service.DMLocationServiceHelper;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -63,26 +62,21 @@ public class SampleContentProvider extends ContentProvider {
     /** The URI matcher. */
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
+
     static {
         MATCHER.addURI(AUTHORITY, Cheese.TABLE_NAME, CODE_CHEESE_DIR);
         MATCHER.addURI(AUTHORITY, Cheese.TABLE_NAME + "/*", CODE_CHEESE_ITEM);
     }
 
-    private TimerTask mTask;
-    private Timer mTimer;
+    private DMLocationServiceHelper mGeoFenceHelperService;
+
 
     @Override
     public boolean onCreate() {
         Log.d("bawoori", "onCreate: ");
-        mTask = new TimerTask() {
-            @Override
-            public void run() {
-                Log.d("bawoori", "running timer task........");
-            }
-        };
+        mGeoFenceHelperService = new DMLocationServiceHelper(this.getContext());
+        mGeoFenceHelperService.startService();
 
-        mTimer = new Timer();
-        mTimer.schedule(mTask, 5000, 5000);
 
         return true;
 

@@ -1,137 +1,149 @@
-/*
- * Copyright (C) 2017 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dmlab.bawoori.dmfencetest2;
 
-import android.database.Cursor;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.dmlab.bawoori.dmlib.data.Cheese;
-import com.dmlab.bawoori.dmlib.provider.SampleContentProvider;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 
-/**
- * Not very relevant to Room. This just shows data from {@link SampleContentProvider}.
- *
- * <p>Since the data is exposed through the ContentProvider, other apps can read and write the
- * content in a similar manner to this.</p>
- */
+
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
+    DMService mService;
+    boolean mBound = false;
 
-    private static final int LOADER_CHEESES = 1;
+    private ArrayAdapter adapter;
 
-    private CheeseAdapter mCheeseAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+        // Bind to DMService
+        Intent intent = new Intent(this, DMService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-        final RecyclerView list = findViewById(R.id.list);
-        list.setLayoutManager(new LinearLayoutManager(list.getContext()));
-        mCheeseAdapter = new CheeseAdapter();
-        list.setAdapter(mCheeseAdapter);
+        setContentView(R.layout.activity_main);
+        setTitle("Geofences 리스트");
 
-        getSupportLoaderManager().initLoader(LOADER_CHEESES, null, mLoaderCallbacks);
+        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1) ;
+
+        ListView listview = (ListView) findViewById(R.id.deviceList) ;
+        listview.setAdapter(adapter) ;
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView parent, View v, int position, long id) {
+
+                // get TextView's Text.
+                String strText = (String) parent.getItemAtPosition(position) ;
+                Log.d(TAG, "selected item:" + strText);
+
+                Intent intent=new Intent(MainActivity.this, FenceInfoActivity.class);
+                intent.putExtra("FENCE_ID", strText);
+                startActivity(intent);
+            }
+        }) ;
+
+
     }
 
-    private LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks =
-            new LoaderManager.LoaderCallbacks<Cursor>() {
+    @Override
+    protected void onStart() {
+        super.onStart();
 
-                @Override
-                public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                    switch (id) {
-                        case LOADER_CHEESES:
-                            return new CursorLoader(getApplicationContext(),
-                                    SampleContentProvider.URI_CHEESE,
-                                    new String[]{Cheese.COLUMN_NAME},
-                                    null, null, null);
-                        default:
-                            throw new IllegalArgumentException();
-                    }
-                }
+        // Bind to DMService
+//        Intent intent = new Intent(this, DMService.class);
+//        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
 
-                @Override
-                public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                    switch (loader.getId()) {
-                        case LOADER_CHEESES:
-                            mCheeseAdapter.setCheeses(data);
-                            break;
-                    }
-                }
+    private static final int REQUEST_SCAN_ALWAYS_AVAILABLE = 1;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refresh();
+        Log.d(TAG, "onResume().mBound:" + mBound);
 
-                @Override
-                public void onLoaderReset(Loader<Cursor> loader) {
-                    switch (loader.getId()) {
-                        case LOADER_CHEESES:
-                            mCheeseAdapter.setCheeses(null);
-                            break;
-                    }
-                }
 
-            };
 
-    private static class CheeseAdapter extends RecyclerView.Adapter<CheeseAdapter.ViewHolder> {
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
-        private Cursor mCursor;
+        if (Build.VERSION.SDK_INT >= 18 && !wifiManager.isScanAlwaysAvailable()) {
+            Intent intent = new Intent();
+            intent.setAction(WifiManager.ACTION_REQUEST_SCAN_ALWAYS_AVAILABLE);
+            startActivityForResult(intent, REQUEST_SCAN_ALWAYS_AVAILABLE);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unbind from the service
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
+    /** Called when a button is clicked (the button in the layout file attaches to
+     * this method with the android:onClick attribute) */
+    public void onAddFence(View v) {
+        Intent intent=new Intent(this, RegFenceActivity.class);
+        startActivity(intent);
+    }
+
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(parent);
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to DMService, cast the IBinder and get DMService instance
+           if(!mBound) {
+               DMService.LocalBinder binder = (DMService.LocalBinder) service;
+               mService = binder.getService();
+               mBound = true;
+
+               mService.initDMLib();
+               refresh();
+               Log.d(TAG, "ServiceConnected-mBound:" + mBound);
+           }
+
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            if (mCursor.moveToPosition(position)) {
-                holder.mText.setText(mCursor.getString(
-                        mCursor.getColumnIndexOrThrow(Cheese.COLUMN_NAME)));
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+            Log.d(TAG, "onServiceDisconnected().................................");
+        }
+    };
+
+    private void refresh(){
+        if(mBound){
+            String[] fences = mService.getAllFences();
+            adapter.clear();
+            for(int i=0; i<fences.length; i++){
+                adapter.add(fences[i]);
             }
+            adapter.notifyDataSetChanged();
+            Log.d(TAG, "refresh().................................");
         }
-
-        @Override
-        public int getItemCount() {
-            return mCursor == null ? 0 : mCursor.getCount();
-        }
-
-        void setCheeses(Cursor cursor) {
-            mCursor = cursor;
-            notifyDataSetChanged();
-        }
-
-        static class ViewHolder extends RecyclerView.ViewHolder {
-
-            TextView mText;
-
-            ViewHolder(ViewGroup parent) {
-                super(LayoutInflater.from(parent.getContext()).inflate(
-                        android.R.layout.simple_list_item_1, parent, false));
-                mText = itemView.findViewById(android.R.id.text1);
-            }
-
-        }
-
     }
 
 }

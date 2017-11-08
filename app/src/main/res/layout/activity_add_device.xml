@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddFenceActivity"
+    tools:layout_editor_absoluteY="89dp"
+    tools:layout_editor_absoluteX="0dp">
+
+    <TextView
+        android:id="@+id/addResultMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="64dp" />
+
+    <TextView
+        android:id="@+id/id"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="ID"
+        tools:ignore="HardcodedText"
+        android:layout_marginLeft="64dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="64dp"
+        app:layout_constraintTop_toBottomOf="@+id/addResultMsg"
+        android:layout_marginStart="64dp" />
+
+    <TextView
+        android:id="@+id/LAT"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="위도"
+        tools:ignore="HardcodedText"
+        app:layout_constraintLeft_toLeftOf="@+id/id"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@+id/id" />
+
+    <TextView
+        android:id="@+id/LNG"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="경도"
+        tools:ignore="HardcodedText"
+        app:layout_constraintLeft_toLeftOf="@+id/LAT"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@+id/LAT" />
+
+    <TextView
+        android:id="@+id/VID"
+        android:layout_width="101dp"
+        android:layout_height="20dp"
+        android:text="ID"
+        android:textColor="@android:color/holo_green_dark"
+        tools:ignore="HardcodedText"
+        app:layout_constraintBaseline_toBaselineOf="@+id/id"
+        android:layout_marginLeft="100dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/VLAT"
+        android:layout_width="101dp"
+        android:layout_height="17dp"
+        android:text="vlat"
+        android:textColor="@android:color/holo_green_dark"
+        tools:ignore="HardcodedText"
+        app:layout_constraintBaseline_toBaselineOf="@+id/LAT"
+        android:layout_marginLeft="100dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/VLNG"
+        android:layout_width="101dp"
+        android:layout_height="16dp"
+        android:text="vlat"
+        android:textColor="@android:color/holo_green_dark"
+        tools:ignore="HardcodedText"
+        app:layout_constraintBaseline_toBaselineOf="@+id/LNG"
+        android:layout_marginLeft="100dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
