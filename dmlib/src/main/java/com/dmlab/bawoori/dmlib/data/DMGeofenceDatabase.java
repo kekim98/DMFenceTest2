@@ -26,28 +26,29 @@ import android.support.annotation.VisibleForTesting;
 /**
  * The Room database.
  */
-@Database(entities = {Cheese.class}, version = 1)
-public abstract class SampleDatabase extends RoomDatabase {
+@Database(entities = {Cheese.class, DMGeofence.class}, version = 1)
+public abstract class DMGeofenceDatabase extends RoomDatabase {
 
     /**
      * @return The DAO for the Cheese table.
      */
     @SuppressWarnings("WeakerAccess")
     public abstract CheeseDao cheese();
+    public abstract DMGeofenceDao dmGeofenceDao();
 
     /** The only instance */
-    private static SampleDatabase sInstance;
+    private static DMGeofenceDatabase sInstance;
 
     /**
-     * Gets the singleton instance of SampleDatabase.
+     * Gets the singleton instance of DMGeofenceDatabase.
      *
      * @param context The context.
-     * @return The singleton instance of SampleDatabase.
+     * @return The singleton instance of DMGeofenceDatabase.
      */
-    public static synchronized SampleDatabase getInstance(Context context) {
+    public static synchronized DMGeofenceDatabase getInstance(Context context) {
         if (sInstance == null) {
             sInstance = Room
-                    .databaseBuilder(context.getApplicationContext(), SampleDatabase.class, "ex")
+                    .databaseBuilder(context.getApplicationContext(), DMGeofenceDatabase.class, "ex")
                     .build();
             sInstance.populateInitialData();
         }
@@ -62,7 +63,7 @@ public abstract class SampleDatabase extends RoomDatabase {
     @VisibleForTesting
     public static void switchToInMemory(Context context) {
         sInstance = Room.inMemoryDatabaseBuilder(context.getApplicationContext(),
-                SampleDatabase.class).build();
+                DMGeofenceDatabase.class).build();
     }
 
     /**

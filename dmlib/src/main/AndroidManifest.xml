@@ -17,7 +17,7 @@
             android:value="@integer/google_play_services_version" />
 
         <provider
-            android:name=".provider.SampleContentProvider"
+            android:name=".provider.DMGeofenceProvider"
             android:authorities="com.dmlab.bawoori.dmlib.contentprovidersample.provider"
             android:exported="true"
             android:permission="com.dmlab.bawoori.dmlib.contentprovidersample.provider.READ_WRITE"

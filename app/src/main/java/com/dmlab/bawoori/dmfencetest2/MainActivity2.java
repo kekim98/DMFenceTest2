@@ -33,11 +33,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.dmlab.bawoori.dmlib.data.Cheese;
-import com.dmlab.bawoori.dmlib.provider.SampleContentProvider;
+import com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider;
 
 
 /**
- * Not very relevant to Room. This just shows data from {@link SampleContentProvider}.
+ * Not very relevant to Room. This just shows data from {@link DMGeofenceProvider}.
  *
  * <p>Since the data is exposed through the ContentProvider, other apps can read and write the
  * content in a similar manner to this.</p>
@@ -77,7 +77,7 @@ public class MainActivity2 extends AppCompatActivity {
                     switch (id) {
                         case LOADER_CHEESES:
                             return new CursorLoader(getApplicationContext(),
-                                    SampleContentProvider.URI_CHEESE,
+                                    DMGeofenceProvider.URI_CHEESE,
                                     new String[]{Cheese.COLUMN_NAME},
                                     null, null, null);
                         default:

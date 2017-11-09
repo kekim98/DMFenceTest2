@@ -32,7 +32,9 @@ import android.util.Log;
 
 import com.dmlab.bawoori.dmlib.data.Cheese;
 import com.dmlab.bawoori.dmlib.data.CheeseDao;
-import com.dmlab.bawoori.dmlib.data.SampleDatabase;
+import com.dmlab.bawoori.dmlib.data.DMGeofence;
+import com.dmlab.bawoori.dmlib.data.DMGeofenceDao;
+import com.dmlab.bawoori.dmlib.data.DMGeofenceDatabase;
 import com.dmlab.bawoori.dmlib.service.DMLocationServiceHelper;
 
 import java.util.ArrayList;
@@ -44,26 +46,35 @@ import java.util.ArrayList;
  * <p>Note that you don't need to implement a ContentProvider unless you want to expose the data
  * outside your process or your application already uses a ContentProvider.</p>
  */
-public class SampleContentProvider extends ContentProvider {
+public class DMGeofenceProvider extends ContentProvider {
 
     /** The authority of this content provider. */
     public static final String AUTHORITY = "com.dmlab.bawoori.dmlib.contentprovidersample.provider";
 
     /** The URI for the Cheese table. */
+    public static final Uri URI_DMGEOFENCE = Uri.parse(
+            "content://" + AUTHORITY + "/" + DMGeofence.TABLE_NAME);
+
     public static final Uri URI_CHEESE = Uri.parse(
             "content://" + AUTHORITY + "/" + Cheese.TABLE_NAME);
 
     /** The match code for some items in the Cheese table. */
-    private static final int CODE_CHEESE_DIR = 1;
+    private static final int CODE_DMGEOFENCE_DIR = 1;
+    private static final int CODE_DMGEOFENCE_ITEM = 2;
+
+    private static final int CODE_CHEESE_DIR = 3;
 
     /** The match code for an item in the Cheese table. */
-    private static final int CODE_CHEESE_ITEM = 2;
+    private static final int CODE_CHEESE_ITEM = 4;
 
     /** The URI matcher. */
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
 
     static {
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME, CODE_DMGEOFENCE_DIR);
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/*", CODE_DMGEOFENCE_ITEM);
+
         MATCHER.addURI(AUTHORITY, Cheese.TABLE_NAME, CODE_CHEESE_DIR);
         MATCHER.addURI(AUTHORITY, Cheese.TABLE_NAME + "/*", CODE_CHEESE_ITEM);
     }
@@ -87,12 +98,29 @@ public class SampleContentProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
             @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         final int code = MATCHER.match(uri);
-        if (code == CODE_CHEESE_DIR || code == CODE_CHEESE_ITEM) {
+        if (code == CODE_DMGEOFENCE_DIR || code == CODE_DMGEOFENCE_ITEM) {
             final Context context = getContext();
             if (context == null) {
                 return null;
             }
-            CheeseDao cheese = SampleDatabase.getInstance(context).cheese();
+            DMGeofenceDao dmGeofenceDao = DMGeofenceDatabase.getInstance(context).dmGeofenceDao();
+            final Cursor cursor;
+            if (code == CODE_DMGEOFENCE_DIR) {
+                cursor = dmGeofenceDao.selectAll();
+            } else {
+                cursor = dmGeofenceDao.selectById(ContentUris.parseId(uri));
+            }
+            cursor.setNotificationUri(context.getContentResolver(), uri);
+            return cursor;
+
+        }
+
+        else if (code == CODE_CHEESE_DIR || code == CODE_CHEESE_ITEM) {
+            final Context context = getContext();
+            if (context == null) {
+                return null;
+            }
+            CheeseDao cheese = DMGeofenceDatabase.getInstance(context).cheese();
             final Cursor cursor;
             if (code == CODE_CHEESE_DIR) {
                 cursor = cheese.selectAll();
@@ -110,6 +138,12 @@ public class SampleContentProvider extends ContentProvider {
     @Override
     public String getType(@NonNull Uri uri) {
         switch (MATCHER.match(uri)) {
+            case CODE_DMGEOFENCE_DIR:
+                return "vnd.android.cursor.dir/" + AUTHORITY + "." + DMGeofence.TABLE_NAME;
+            case CODE_DMGEOFENCE_ITEM:
+                return "vnd.android.cursor.item/" + AUTHORITY + "." + DMGeofence.TABLE_NAME;
+
+
             case CODE_CHEESE_DIR:
                 return "vnd.android.cursor.dir/" + AUTHORITY + "." + Cheese.TABLE_NAME;
             case CODE_CHEESE_ITEM:
@@ -122,13 +156,27 @@ public class SampleContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        final Context context = getContext();
+        long id;
         switch (MATCHER.match(uri)) {
-            case CODE_CHEESE_DIR:
-                final Context context = getContext();
+            case CODE_DMGEOFENCE_DIR:
                 if (context == null) {
                     return null;
                 }
-                final long id = SampleDatabase.getInstance(context).cheese()
+                id = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
+                        .insert(DMGeofence.fromContentValues(values));
+                context.getContentResolver().notifyChange(uri, null);
+                return ContentUris.withAppendedId(uri, id);
+            case CODE_DMGEOFENCE_ITEM:
+                throw new IllegalArgumentException("Invalid URI, cannot insert with ID: " + uri);
+
+
+            case CODE_CHEESE_DIR:
+               // final Context context = getContext();
+                if (context == null) {
+                    return null;
+                }
+                id = DMGeofenceDatabase.getInstance(context).cheese()
                         .insert(Cheese.fromContentValues(values));
                 context.getContentResolver().notifyChange(uri, null);
                 return ContentUris.withAppendedId(uri, id);
@@ -142,15 +190,29 @@ public class SampleContentProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection,
             @Nullable String[] selectionArgs) {
+        final Context context = getContext();
+        int count;
         switch (MATCHER.match(uri)) {
-            case CODE_CHEESE_DIR:
+            case CODE_DMGEOFENCE_DIR:
                 throw new IllegalArgumentException("Invalid URI, cannot update without ID" + uri);
-            case CODE_CHEESE_ITEM:
-                final Context context = getContext();
+            case CODE_DMGEOFENCE_ITEM:
                 if (context == null) {
                     return 0;
                 }
-                final int count = SampleDatabase.getInstance(context).cheese()
+                count = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
+                        .deleteById(ContentUris.parseId(uri));
+                context.getContentResolver().notifyChange(uri, null);
+                return count;
+
+
+            case CODE_CHEESE_DIR:
+                throw new IllegalArgumentException("Invalid URI, cannot update without ID" + uri);
+            case CODE_CHEESE_ITEM:
+            //    final Context context = getContext();
+                if (context == null) {
+                    return 0;
+                }
+                count = DMGeofenceDatabase.getInstance(context).cheese()
                         .deleteById(ContentUris.parseId(uri));
                 context.getContentResolver().notifyChange(uri, null);
                 return count;
@@ -162,17 +224,34 @@ public class SampleContentProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection,
             @Nullable String[] selectionArgs) {
+        final Context context = getContext();
+        int count;
         switch (MATCHER.match(uri)) {
+            case CODE_DMGEOFENCE_DIR:
+                throw new IllegalArgumentException("Invalid URI, cannot update without ID" + uri);
+            case CODE_DMGEOFENCE_ITEM:
+               // final Context context = getContext();
+                if (context == null) {
+                    return 0;
+                }
+                final DMGeofence dmGeofence = DMGeofence.fromContentValues(values);
+                dmGeofence.id = ContentUris.parseId(uri);
+                count = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
+                        .update(dmGeofence);
+                context.getContentResolver().notifyChange(uri, null);
+                return count;
+
+
             case CODE_CHEESE_DIR:
                 throw new IllegalArgumentException("Invalid URI, cannot update without ID" + uri);
             case CODE_CHEESE_ITEM:
-                final Context context = getContext();
+
                 if (context == null) {
                     return 0;
                 }
                 final Cheese cheese = Cheese.fromContentValues(values);
                 cheese.id = ContentUris.parseId(uri);
-                final int count = SampleDatabase.getInstance(context).cheese()
+                count = DMGeofenceDatabase.getInstance(context).cheese()
                         .update(cheese);
                 context.getContentResolver().notifyChange(uri, null);
                 return count;
@@ -190,7 +269,7 @@ public class SampleContentProvider extends ContentProvider {
         if (context == null) {
             return new ContentProviderResult[0];
         }
-        final SampleDatabase database = SampleDatabase.getInstance(context);
+        final DMGeofenceDatabase database = DMGeofenceDatabase.getInstance(context);
         database.beginTransaction();
         try {
             final ContentProviderResult[] result = super.applyBatch(operations);
@@ -203,13 +282,30 @@ public class SampleContentProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] valuesArray) {
+        final Context context = getContext();
+        final DMGeofenceDatabase database = DMGeofenceDatabase.getInstance(context);
         switch (MATCHER.match(uri)) {
-            case CODE_CHEESE_DIR:
-                final Context context = getContext();
+            case CODE_DMGEOFENCE_DIR:
+
                 if (context == null) {
                     return 0;
                 }
-                final SampleDatabase database = SampleDatabase.getInstance(context);
+               // final DMGeofenceDatabase database = DMGeofenceDatabase.getInstance(context);
+                final DMGeofence[] dmGeofences = new DMGeofence[valuesArray.length];
+                for (int i = 0; i < valuesArray.length; i++) {
+                    dmGeofences[i] = DMGeofence.fromContentValues(valuesArray[i]);
+                }
+                return database.dmGeofenceDao().insertAll(dmGeofences).length;
+
+            case CODE_DMGEOFENCE_ITEM:
+                throw new IllegalArgumentException("Invalid URI, cannot insert with ID: " + uri);
+
+            case CODE_CHEESE_DIR:
+               // final Context context = getContext();
+                if (context == null) {
+                    return 0;
+                }
+              //  final DMGeofenceDatabase database = DMGeofenceDatabase.getInstance(context);
                 final Cheese[] cheeses = new Cheese[valuesArray.length];
                 for (int i = 0; i < valuesArray.length; i++) {
                     cheeses[i] = Cheese.fromContentValues(valuesArray[i]);

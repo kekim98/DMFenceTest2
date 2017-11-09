@@ -18,8 +18,8 @@ import java.util.Locale;
 public class AddFenceActivity extends AppCompatActivity {
 
     private static final String TAG = AddFenceActivity.class.getSimpleName();
-    private static final String ADD_SUCCESS_MSG = "정상 등록 되었습니다.";
-    private static final String ADD_FAIL_MSG = "이미 등록된 Geofences가 있습니다.";
+    private static final String ADD_SUCCESS_MSG = "정상 저장 되었습니다.";
+    private static final String ADD_FAIL_MSG = "이미 저장된 위치정가 있습니다.";
 
     DMService mService;
     boolean mBound;
@@ -28,7 +28,7 @@ public class AddFenceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_device);
-        setTitle("등록 결과 화면");
+        setTitle("위치정보 저장 결과 화면");
 
         // Bind to DMService
         mBound=false;

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "fe13266879092cc32a3fc739abbfbd55",
+    "identityHash": "319ce2bc04298555eb612ca3efdca7cd",
     "entities": [
       {
         "tableName": "cheeses",
@@ -38,11 +38,114 @@
           }
         ],
         "foreignKeys": []
+      },
+      {
+        "tableName": "t_dm_geofence",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fence_id` TEXT NOT NULL, `latitude` INTEGER NOT NULL, `longitude` INTEGER NOT NULL, `address` TEXT, `cell_id` INTEGER NOT NULL, `wifi_mac_adds` TEXT, `priority` INTEGER NOT NULL, `radius` INTEGER NOT NULL, `expire_duration` INTEGER NOT NULL, `transition_type` INTEGER NOT NULL, `reg_time` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fence_id",
+            "columnName": "fence_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cell_id",
+            "columnName": "cell_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wifi_mac_adds",
+            "columnName": "wifi_mac_adds",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "priority",
+            "columnName": "priority",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "radius",
+            "columnName": "radius",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expire_duration",
+            "columnName": "expire_duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "transition_type",
+            "columnName": "transition_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reg_time",
+            "columnName": "reg_time",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_t_dm_geofence_fence_id",
+            "unique": true,
+            "columnNames": [
+              "fence_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_t_dm_geofence_fence_id` ON `${TABLE_NAME}` (`fence_id`)"
+          },
+          {
+            "name": "index_t_dm_geofence__id",
+            "unique": false,
+            "columnNames": [
+              "_id"
+            ],
+            "createSql": "CREATE  INDEX `index_t_dm_geofence__id` ON `${TABLE_NAME}` (`_id`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"fe13266879092cc32a3fc739abbfbd55\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"319ce2bc04298555eb612ca3efdca7cd\")"
     ]
   }
 }
