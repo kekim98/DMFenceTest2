@@ -2,10 +2,16 @@ package com.dmlab.bawoori.dmfencetest2;
 
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+import com.dmlab.bawoori.dmlib.data.DMGeofence;
+import com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider;
+
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import static com.dmlab.bawoori.dmfencetest2.Constants.ANDROID_BUILDING_RADIUS_METERS;
@@ -131,7 +137,7 @@ public class DMService extends Service  {
         }*//*
 
         mGeofenceList.clear();
-        for (String id : getAllFences()) {
+        for (String id : getAllFenceIDs()) {
             SimpleGeofence geofence = mGeofenceStorage.getGeofence(id);
             mGeofenceList.add(geofence.toGeofence());
         }
@@ -178,7 +184,7 @@ public class DMService extends Service  {
 
     }
 
-    public String[] getAllFences() {
+    public String[] getAllFenceIDs() {
         List<String> fences = mGeofenceStorage.getAllFenceIDs();
 
         return fences.toArray(new String[fences.size()]);
@@ -220,6 +226,37 @@ public class DMService extends Service  {
         result.setType(geofence.getTransitionType());
 
         return result;
+    }
+
+    public int createDMGeofences(){
+        List<ContentValues> geofenceList =  new ArrayList<ContentValues>();
+        for (String id : getAllFenceIDs()) {
+            SimpleGeofence geofence = mGeofenceStorage.getGeofence(id);
+
+            geofenceList.add(simplgeGeofeceToDMGeofence(geofence));
+        }
+
+        ContentValues[] simpleArray = new ContentValues[ geofenceList.size() ];
+        geofenceList.toArray( simpleArray );
+
+        return getContentResolver().bulkInsert(DMGeofenceProvider.URI_DMGEOFENCE,simpleArray);
+
+    }
+
+    private ContentValues simplgeGeofeceToDMGeofence(SimpleGeofence geofence) {
+        final ContentValues values = new ContentValues();
+        values.put(DMGeofence.COLUMN_NAME, geofence.getId());
+        values.put(DMGeofence.COLUMN_ADDRESS, "");
+        values.put(DMGeofence.COLUMN_CELL_ID, 0);
+        values.put(DMGeofence.COLUMN_EXPIRE_DURATION, 0);
+        values.put(DMGeofence.COLUMN_LATITUDE, geofence.getLatitude());
+        values.put(DMGeofence.COLUMN_LONGITUDE, geofence.getLongitude());
+        values.put(DMGeofence.COLUMN_PRIORITY, 0);
+        values.put(DMGeofence.COLUMN_RADIUS, 100);
+        values.put(DMGeofence.COLUMN_REG_TIME, Calendar.getInstance().getTimeInMillis());
+        values.put(DMGeofence.COLUMN_TRANSITION_TYPE, DMGeofence.TRANS_UNKNOWN);
+
+        return values;
     }
 
 }

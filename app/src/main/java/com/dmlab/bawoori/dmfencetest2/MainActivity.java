@@ -1,6 +1,7 @@
 package com.dmlab.bawoori.dmfencetest2;
 
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -18,10 +19,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider;
+
+import static java.lang.String.valueOf;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int LOADER_DMGEOFENCE = 1;
     DMService mService;
     boolean mBound = false;
 
@@ -139,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void refresh(){
         if(mBound){
-            String[] fences = mService.getAllFences();
+            String[] fences = mService.getAllFenceIDs();
             adapter.clear();
             for(int i=0; i<fences.length; i++){
                 adapter.add(fences[i]);
@@ -170,6 +175,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void addDMGeofences() {
         Log.d(TAG, "addDMGeofences: ................");
+
+        if(mBound){
+            int count = mService.createDMGeofences();
+            Log.d(TAG, "createDMGeofences: count=" + String.valueOf(count) );
+        }
+
+
     }
 
 }
