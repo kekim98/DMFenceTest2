@@ -153,7 +153,7 @@ public class DMService extends Service  {
         if (mGeofencePendingIntent != null) {
             return mGeofencePendingIntent;
         }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        Intent intent = new Intent(this, DMGeofenceNotificationService.class);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
         // addGeofences() and removeGeofences().
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -229,6 +229,9 @@ public class DMService extends Service  {
     }
 
     public int createDMGeofences(){
+
+        getContentResolver().delete(DMGeofenceProvider.URI_DMGEOFENCE, null, null);
+
         List<ContentValues> geofenceList =  new ArrayList<ContentValues>();
         for (String id : getAllFenceIDs()) {
             SimpleGeofence geofence = mGeofenceStorage.getGeofence(id);
@@ -255,6 +258,7 @@ public class DMService extends Service  {
         values.put(DMGeofence.COLUMN_RADIUS, 100);
         values.put(DMGeofence.COLUMN_REG_TIME, Calendar.getInstance().getTimeInMillis());
         values.put(DMGeofence.COLUMN_TRANSITION_TYPE, DMGeofence.TRANS_UNKNOWN);
+        values.put(DMGeofence.COLUMN_WIFI_MAC_ADDRS, "");
 
         return values;
     }

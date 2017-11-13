@@ -63,8 +63,11 @@ public class DMTestApplication extends Application {
                 Log.d(TAG, "onProviderDisabled.provider: " + provider + " disabled");
             }
         };
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        } catch (Exception e) {
 
+        }
 
 
     }

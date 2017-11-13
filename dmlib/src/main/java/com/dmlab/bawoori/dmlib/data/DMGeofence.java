@@ -6,7 +6,6 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.content.ContentValues;
 import android.provider.BaseColumns;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
 
@@ -29,12 +28,18 @@ public class DMGeofence {
     public static final String COLUMN_RADIUS = "radius";
     public static final String COLUMN_EXPIRE_DURATION = "expire_duration";
     public static final String COLUMN_TRANSITION_TYPE = "transition_type";
+    public static final String COLUMN_IS_START_JOB = "is_start_job";
+    public static final String COLUMN_IS_STOP_JOB = "is_stop_job";
     public static final String COLUMN_REG_TIME = "reg_time";
+    public static final String COLUMN_ENTER_TIME = "enter_time";
+    public static final String COLUMN_EXIT_TIME = "exit_time";
+    public static final String COLUMN_JOB_START_TIME = "job_start_time";
+    public static final String COLUMN_JOB_STOP_TIME = "job_stop_time";
 
     public static final int TRANS_UNKNOWN = 0;
     public static final int TRANS_ENTER = 1;
-    public static final int TRANS_START = 2;
-    public static final int TRANS_STOP = 3;
+    //public static final int TRANS_START = 2;
+    //public static final int TRANS_STOP = 3;
     public static final int TRANS_EXIT = 4;
 
 
@@ -65,7 +70,14 @@ public class DMGeofence {
     public int expire_duration;
 
     public int transition_type;
+    public int is_start_job=0;
+    public int is_stop_job=0;
+
     public long reg_time;
+    public long enter_time=0;
+    public long exit_time=0;
+    public long job_start_time=0;
+    public long job_stop_time=0;
 
 
     public static DMGeofence fromContentValues(ContentValues values) {

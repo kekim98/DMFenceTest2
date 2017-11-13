@@ -56,6 +56,14 @@ public interface DMGeofenceDao {
     @Query("SELECT * FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_ID + " = :id")
     Cursor selectById(long id);
 
+    @Query("SELECT * FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_TRANSITION_TYPE +
+            " IN("+DMGeofence.TRANS_ENTER +"," +DMGeofence.TRANS_EXIT +")")
+    Cursor selectAllKnownTrans();
+
+    @Query("SELECT * FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_TRANSITION_TYPE +
+            "=" + DMGeofence.TRANS_UNKNOWN)
+    Cursor selectAllUnknownTrans();
+
     /**
      * Delete a dmgeofence by the ID.
      *
@@ -65,6 +73,9 @@ public interface DMGeofenceDao {
     @Query("DELETE FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_ID + " = :id")
     int deleteById(long id);
 
+    @Query("DELETE FROM " + DMGeofence.TABLE_NAME)
+    int deleteAll();
+
     /**
      * Update the dmgeofence. The dmgeofence is identified by the row ID.
      *
@@ -73,4 +84,8 @@ public interface DMGeofenceDao {
      */
     @Update
     int update(DMGeofence dmgeofence);
+
+    @Query("UPDATE " + DMGeofence.TABLE_NAME + " SET " + DMGeofence.COLUMN_TRANSITION_TYPE + "= :type"
+            + " WHERE " + DMGeofence.COLUMN_ID + " = :id" )
+    int updateTransType(long id, int type);
 }

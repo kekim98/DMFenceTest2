@@ -4,6 +4,7 @@
     package="com.dmlab.bawoori.dmlib">
 
     <permission android:name="com.dmlab.bawoori.dmlib.contentprovidersample.provider.READ_WRITE" />
+
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -27,7 +28,7 @@
             android:name=".service.DMLocationService"
             android:enabled="true"
             android:exported="true"
-            android:process=":bawoori"></service>
+            android:process=":bawoori" />
 
         <receiver
             android:name=".receiver.BootCompReceiver"
@@ -36,8 +37,16 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
-
         </receiver>
+
+        <service
+            android:name=".service.DMGeofenceService"
+            android:exported="false"
+            android:process=":bawoori"/>
+        <service
+            android:name=".service.DMGeofenceNotificationService"
+            android:exported="false"
+            android:process=":bawoori"/>
     </application>
 
 </manifest>

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 
 import com.google.android.gms.location.LocationCallback;
@@ -25,18 +24,21 @@ public class DMLocationService extends Service {
     private static final long SCHEDULE_PERIOD = 10 * 1000;
     private static final long UPDATE_INTERVAL = 10 * 1000;
     private static final long FASTEST_INTERVAL = 2 * 1000;
+    private static final float LIMIT_ACCURACY = 60f;
+    private static final String TAG = DMLocationService.class.getSimpleName();
 
-    private static Location sLocation;
+
+    private Location mLocation;
     private TimerTask mTask=null;
     private Timer mTimer=null;
     public LocationRequest mLocationRequest=null;
 
-    public static double getLatitude() {
-        return sLocation.getLatitude();
+    public  double getLatitude() {
+        return mLocation.getLatitude();
     }
 
-    public static double getLongitude() {
-        return sLocation.getLongitude();
+    public  double getLongitude() {
+        return mLocation.getLongitude();
     }
 
     public DMLocationService() {
@@ -51,7 +53,7 @@ public class DMLocationService extends Service {
                 @Override
                 public void run() {
                     Log.d("bawoori", "running timer task........");
-                    //  getLastLocation();
+                    procDMGeofenceEvent();
                 }
             };
 
@@ -66,6 +68,15 @@ public class DMLocationService extends Service {
 
 
     }
+
+    private void procDMGeofenceEvent() {
+        if (mLocation != null) {
+            Double latitude =getLatitude();
+            Double longitude = getLongitude();
+            DMGeofenceService.startActionProcDMGeofence(getApplicationContext(), latitude, longitude);
+        }
+    }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -124,6 +135,10 @@ public class DMLocationService extends Service {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();*/
 
         // You can now create a LatLng Object for use with maps
-        sLocation = location;
+        if (location.hasAccuracy() && location.getAccuracy() > LIMIT_ACCURACY) {
+            Log.d(TAG, "onLocationChanged: accuracy" + String.valueOf(location.getAccuracy()));
+            return;
+        }
+        mLocation = location;
     }
 }

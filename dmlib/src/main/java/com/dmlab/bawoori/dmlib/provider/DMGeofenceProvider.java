@@ -55,24 +55,36 @@ public class DMGeofenceProvider extends ContentProvider {
     public static final Uri URI_DMGEOFENCE = Uri.parse(
             "content://" + AUTHORITY + "/" + DMGeofence.TABLE_NAME);
 
+
     public static final Uri URI_CHEESE = Uri.parse(
             "content://" + AUTHORITY + "/" + Cheese.TABLE_NAME);
+
+    public static final String PATH_GET_KNOWN_TRANS = "get_known_trans";
+    public static final String PATH_GET_UNKNOWN_TRANS = "get_unknown_trans";
+    public static final String PATH_UPDATE_TRANS = "update_trans_type";
 
     /** The match code for some items in the Cheese table. */
     private static final int CODE_DMGEOFENCE_DIR = 1;
     private static final int CODE_DMGEOFENCE_ITEM = 2;
+    private static final int CODE_DMGEOFENCE_GET_KNOWN_TRANS = 3;
+    private static final int CODE_DMGEOFENCE_DIR_GET_UNKNOWN_TRANS = 4;
+    private static final int CODE_DMGEOFENCE_UPDATE_TRANS_TYPE = 5;
 
-    private static final int CODE_CHEESE_DIR = 3;
+    private static final int CODE_CHEESE_DIR = 6;
 
     /** The match code for an item in the Cheese table. */
-    private static final int CODE_CHEESE_ITEM = 4;
+    private static final int CODE_CHEESE_ITEM = 7;
 
     /** The URI matcher. */
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
 
+
     static {
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME, CODE_DMGEOFENCE_DIR);
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_GET_KNOWN_TRANS, CODE_DMGEOFENCE_GET_KNOWN_TRANS);
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_GET_UNKNOWN_TRANS, CODE_DMGEOFENCE_DIR_GET_UNKNOWN_TRANS);
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_UPDATE_TRANS , CODE_DMGEOFENCE_UPDATE_TRANS_TYPE);
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/*", CODE_DMGEOFENCE_ITEM);
 
         MATCHER.addURI(AUTHORITY, Cheese.TABLE_NAME, CODE_CHEESE_DIR);
@@ -84,10 +96,13 @@ public class DMGeofenceProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Log.d("bawoori", "onCreate: ");
-        mGeoFenceHelperService = new DMLocationServiceHelper(this.getContext());
-        mGeoFenceHelperService.startService();
 
+        if (mGeoFenceHelperService == null) {
+            Log.d("bawoori", "onCreate: ");
+            mGeoFenceHelperService = new DMLocationServiceHelper(this.getContext());
+            mGeoFenceHelperService.startService();
+
+        }
 
         return true;
 
@@ -98,7 +113,10 @@ public class DMGeofenceProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
             @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         final int code = MATCHER.match(uri);
-        if (code == CODE_DMGEOFENCE_DIR || code == CODE_DMGEOFENCE_ITEM) {
+        if (code == CODE_DMGEOFENCE_DIR
+                || code == CODE_DMGEOFENCE_ITEM
+                || code == CODE_DMGEOFENCE_GET_KNOWN_TRANS
+                || code == CODE_DMGEOFENCE_DIR_GET_UNKNOWN_TRANS) {
             final Context context = getContext();
             if (context == null) {
                 return null;
@@ -107,6 +125,10 @@ public class DMGeofenceProvider extends ContentProvider {
             final Cursor cursor;
             if (code == CODE_DMGEOFENCE_DIR) {
                 cursor = dmGeofenceDao.selectAll();
+            } else if (code == CODE_DMGEOFENCE_GET_KNOWN_TRANS) {
+                cursor = dmGeofenceDao.selectAllKnownTrans();
+            } else if (code == CODE_DMGEOFENCE_DIR_GET_UNKNOWN_TRANS) {
+                cursor = dmGeofenceDao.selectAllUnknownTrans();
             } else {
                 cursor = dmGeofenceDao.selectById(ContentUris.parseId(uri));
             }
@@ -194,7 +216,14 @@ public class DMGeofenceProvider extends ContentProvider {
         int count;
         switch (MATCHER.match(uri)) {
             case CODE_DMGEOFENCE_DIR:
-                throw new IllegalArgumentException("Invalid URI, cannot update without ID" + uri);
+               // throw new IllegalArgumentException("Invalid URI, cannot update without ID" + uri);
+                if (context == null) {
+                    return 0;
+                }
+                count = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
+                        .deleteAll();
+                context.getContentResolver().notifyChange(uri, null);
+                return count;
             case CODE_DMGEOFENCE_ITEM:
                 if (context == null) {
                     return 0;
@@ -225,6 +254,7 @@ public class DMGeofenceProvider extends ContentProvider {
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection,
             @Nullable String[] selectionArgs) {
         final Context context = getContext();
+        final DMGeofence dmGeofence = DMGeofence.fromContentValues(values);
         int count;
         switch (MATCHER.match(uri)) {
             case CODE_DMGEOFENCE_DIR:
@@ -234,11 +264,16 @@ public class DMGeofenceProvider extends ContentProvider {
                 if (context == null) {
                     return 0;
                 }
-                final DMGeofence dmGeofence = DMGeofence.fromContentValues(values);
                 dmGeofence.id = ContentUris.parseId(uri);
                 count = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
                         .update(dmGeofence);
                 context.getContentResolver().notifyChange(uri, null);
+                return count;
+            case CODE_DMGEOFENCE_UPDATE_TRANS_TYPE:
+                final long id = dmGeofence.id;
+                final int type = dmGeofence.transition_type;
+                count = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
+                        .updateTransType(id, type);
                 return count;
 
 
@@ -317,5 +352,6 @@ public class DMGeofenceProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
     }
+
 
 }
