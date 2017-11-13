@@ -136,7 +136,7 @@ public class DMLocationService extends Service {
 
         // You can now create a LatLng Object for use with maps
         if (location.hasAccuracy() && location.getAccuracy() > LIMIT_ACCURACY) {
-            Log.d(TAG, "onLocationChanged: accuracy" + String.valueOf(location.getAccuracy()));
+            Log.d(TAG, "onLocationChanged: accuracy=" + String.valueOf(location.getAccuracy()));
             return;
         }
         mLocation = location;

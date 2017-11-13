@@ -38,12 +38,10 @@ public class DMGeofence {
 
     public static final int TRANS_UNKNOWN = 0;
     public static final int TRANS_ENTER = 1;
-    //public static final int TRANS_START = 2;
-    //public static final int TRANS_STOP = 3;
+    public static final int TRANS_START = 2;
+    public static final int TRANS_STOP = 3;
     public static final int TRANS_EXIT = 4;
-
-
-
+    public static final int JOB_NOT_DONE = 0;
 
 
     @PrimaryKey(autoGenerate = true)

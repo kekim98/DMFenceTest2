@@ -57,6 +57,30 @@ public class DMGeofenceNotificationService extends IntentService {
         context.startService(intent);
     }
 
+    public static void startActionExitNotification(Context context, String geofencName, long time) {
+        Intent intent = new Intent(context, DMGeofenceNotificationService.class);
+        intent.setAction(DMGeofenceNotificationService.ACTION_EXIT_NOTIFICATION);
+        intent.putExtra("geofencName", geofencName);
+        intent.putExtra("time", time);
+        intent.putExtra("type", DMGeofence.TRANS_EXIT);
+        context.startService(intent);
+    }
+
+    public static void startActionStartOrStopNotification(Context context, String geofenceName,
+                                                          int is_start_job, int is_stop_job) {
+        Intent intent = new Intent(context, DMGeofenceNotificationService.class);
+        intent.setAction(DMGeofenceNotificationService.ACTION_EXIT_NOTIFICATION);
+        intent.putExtra("geofencName", geofenceName);
+        if(is_start_job == DMGeofence.JOB_NOT_DONE){
+            intent.putExtra("type", DMGeofence.TRANS_START);
+        }
+        else{
+            intent.putExtra("type", DMGeofence.TRANS_STOP);
+        }
+
+        context.startService(intent);
+    }
+
     /**
      * This constructor is required, and calls the super IntentService(String)
      * constructor with the name for a worker thread.
@@ -81,7 +105,9 @@ public class DMGeofenceNotificationService extends IntentService {
 
             // Test that the reported transition was of interest.
             if (geofenceTransition == DMGeofence.TRANS_ENTER ||
-                    geofenceTransition == DMGeofence.TRANS_EXIT) {
+                    geofenceTransition == DMGeofence.TRANS_EXIT ||
+                    geofenceTransition == DMGeofence.TRANS_START ||
+                    geofenceTransition == DMGeofence.TRANS_STOP) {
 
                 final String triggeringGeofence = intent.getStringExtra("geofencName");
                 // Get the transition details as a String.
@@ -180,8 +206,15 @@ public class DMGeofenceNotificationService extends IntentService {
                 return "Entered";
             case DMGeofence.TRANS_EXIT:
                 return "Exited";
+            case DMGeofence.TRANS_START:
+                return "Not Started Job";
+            case DMGeofence.TRANS_STOP:
+                return "Not Stoped Job";
             default:
                 return "Unknown Transition";
         }
     }
+
+
+
 }

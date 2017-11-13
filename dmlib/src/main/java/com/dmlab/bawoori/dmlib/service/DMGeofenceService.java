@@ -16,6 +16,7 @@ import com.dmlab.bawoori.dmlib.data.DMGeofence;
 import java.util.Calendar;
 
 import static com.dmlab.bawoori.dmlib.data.DMGeofence.COLUMN_TRANSITION_TYPE;
+import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_ENTER_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_KNOWN_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_UNKNOWN_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_TRANS;
@@ -42,6 +43,7 @@ public class DMGeofenceService extends IntentService {
     private static final String EXTRA_PARAM2 = "com.dmlab.bawoori.dmlib.service.extra.PARAM2";
     private static final String TAG = DMGeofenceService.class.getSimpleName();
     private static final float ENTER_RADIUS_PERCENT = 0.4f;
+    private static final float EXIT_RADIUS_PERCENT = 0.1f;
 
 
     public DMGeofenceService() {
@@ -126,11 +128,81 @@ public class DMGeofenceService extends IntentService {
         }*/
         triggerEnterEvent(latitude, longitude);
         triggerExitEvent(latitude, longitude);
+      //  triggerStartOrStop();
 
     }
 
+    private void triggerStartOrStop() {
+        // Log.d(TAG, "triggerExitEvent: ............");
+        final Cursor cursor = getContentResolver().query(
+                URI_DMGEOFENCE.buildUpon().appendPath(PATH_GET_KNOWN_TRANS).build(),
+                null,null,null,null);
+
+        try {
+            while (cursor.moveToNext()) {
+                final int is_start_job = cursor.getInt(cursor.getColumnIndex(DMGeofence.COLUMN_IS_START_JOB));
+                final int is_stop_job = cursor.getInt(cursor.getColumnIndex(DMGeofence.COLUMN_IS_STOP_JOB));
+                final String geofenceName = cursor.getString(cursor.getColumnIndex(DMGeofence.COLUMN_NAME));
+
+
+                Log.d(TAG, "triggerStartOrStop: Exited.........");
+
+                DMGeofenceNotificationService.startActionStartOrStopNotification(getApplicationContext(), geofenceName, is_start_job, is_stop_job);
+
+
+
+
+               /* Log.d(TAG, "triggerEnterEvent: latitude=" + String.valueOf(dLatitude));
+                Log.d(TAG, "triggerEnterEvent: longitude=" + String.valueOf(dLongitude));
+                Log.d(TAG, "triggerEnterEvent: enter=" + String.valueOf(enter) );
+                Log.d(TAG, "triggerEnterEvent: distance=" + String.valueOf(results[0]) );*/
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
     private void triggerExitEvent(Double latitude, Double longitude) {
-        Log.d(TAG, "triggerExitEvent: ............");
+       // Log.d(TAG, "triggerExitEvent: ............");
+        final Cursor cursor = getContentResolver().query(
+                URI_DMGEOFENCE.buildUpon().appendPath(PATH_GET_ENTER_TRANS).build(),
+                null,null,null,null);
+
+        try {
+            while (cursor.moveToNext()) {
+                Double dLatitude = cursor.getDouble(cursor.getColumnIndex(DMGeofence.COLUMN_LATITUDE));
+                Double dLongitude =cursor.getDouble(cursor.getColumnIndex(DMGeofence.COLUMN_LONGITUDE));
+                int radisu =cursor.getInt(cursor.getColumnIndex(DMGeofence.COLUMN_RADIUS));
+
+                float exit = radisu - (radisu * EXIT_RADIUS_PERCENT);
+                float[] results = {0, 0,0};
+                Location.distanceBetween(latitude, longitude, dLatitude, dLongitude,results);
+
+                if (exit < results[0]) {
+                    Log.d(TAG, "triggerExitEvent: Exited.........");
+                    ContentValues contentValue = new ContentValues();
+                    final long id = cursor.getLong(cursor.getColumnIndex(DMGeofence.COLUMN_ID));
+                    contentValue.put(DMGeofence.COLUMN_ID, id);
+                    contentValue.put(DMGeofence.COLUMN_TRANSITION_TYPE, DMGeofence.TRANS_EXIT);
+                    final int count = getContentResolver().update(URI_DMGEOFENCE.buildUpon().appendPath(PATH_UPDATE_TRANS).build(),
+                            contentValue, null, null);
+                    Log.d(TAG, "triggerEnterEvent: updated count=" + String.valueOf(count));
+
+                    final String geofenName = cursor.getString(cursor.getColumnIndex(DMGeofence.COLUMN_NAME));
+                    final long time = Calendar.getInstance().getTimeInMillis();
+                    DMGeofenceNotificationService.startActionExitNotification(getApplicationContext(), geofenName, time);
+
+                    break;
+                }
+
+               /* Log.d(TAG, "triggerEnterEvent: latitude=" + String.valueOf(dLatitude));
+                Log.d(TAG, "triggerEnterEvent: longitude=" + String.valueOf(dLongitude));
+                Log.d(TAG, "triggerEnterEvent: enter=" + String.valueOf(enter) );
+                Log.d(TAG, "triggerEnterEvent: distance=" + String.valueOf(results[0]) );*/
+            }
+        } finally {
+            cursor.close();
+        }
     }
 
     private void triggerEnterEvent(Double latitude, Double longitude) {

@@ -61,19 +61,23 @@ public class DMGeofenceProvider extends ContentProvider {
 
     public static final String PATH_GET_KNOWN_TRANS = "get_known_trans";
     public static final String PATH_GET_UNKNOWN_TRANS = "get_unknown_trans";
+    public static final String PATH_GET_ENTER_TRANS = "get_enter_trans";
+   // public static final String PATH_GET_STARTORSTOP_TRANS = "get_startorstop_trans";
     public static final String PATH_UPDATE_TRANS = "update_trans_type";
 
     /** The match code for some items in the Cheese table. */
     private static final int CODE_DMGEOFENCE_DIR = 1;
     private static final int CODE_DMGEOFENCE_ITEM = 2;
     private static final int CODE_DMGEOFENCE_GET_KNOWN_TRANS = 3;
-    private static final int CODE_DMGEOFENCE_DIR_GET_UNKNOWN_TRANS = 4;
-    private static final int CODE_DMGEOFENCE_UPDATE_TRANS_TYPE = 5;
+    private static final int CODE_DMGEOFENCE_GET_UNKNOWN_TRANS = 4;
+    private static final int CODE_DMGEOFENCE_GET_ENTER_TRANS = 5;
+    private static final int CODE_DMGEOFENCE_UPDATE_TRANS_TYPE = 6;
 
-    private static final int CODE_CHEESE_DIR = 6;
+
+    private static final int CODE_CHEESE_DIR = 7;
 
     /** The match code for an item in the Cheese table. */
-    private static final int CODE_CHEESE_ITEM = 7;
+    private static final int CODE_CHEESE_ITEM = 8;
 
     /** The URI matcher. */
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
@@ -83,7 +87,8 @@ public class DMGeofenceProvider extends ContentProvider {
     static {
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME, CODE_DMGEOFENCE_DIR);
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_GET_KNOWN_TRANS, CODE_DMGEOFENCE_GET_KNOWN_TRANS);
-        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_GET_UNKNOWN_TRANS, CODE_DMGEOFENCE_DIR_GET_UNKNOWN_TRANS);
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_GET_UNKNOWN_TRANS, CODE_DMGEOFENCE_GET_UNKNOWN_TRANS);
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_GET_ENTER_TRANS, CODE_DMGEOFENCE_GET_ENTER_TRANS);
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_UPDATE_TRANS , CODE_DMGEOFENCE_UPDATE_TRANS_TYPE);
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/*", CODE_DMGEOFENCE_ITEM);
 
@@ -116,7 +121,8 @@ public class DMGeofenceProvider extends ContentProvider {
         if (code == CODE_DMGEOFENCE_DIR
                 || code == CODE_DMGEOFENCE_ITEM
                 || code == CODE_DMGEOFENCE_GET_KNOWN_TRANS
-                || code == CODE_DMGEOFENCE_DIR_GET_UNKNOWN_TRANS) {
+                || code == CODE_DMGEOFENCE_GET_UNKNOWN_TRANS
+                || code == CODE_DMGEOFENCE_GET_ENTER_TRANS) {
             final Context context = getContext();
             if (context == null) {
                 return null;
@@ -126,10 +132,13 @@ public class DMGeofenceProvider extends ContentProvider {
             if (code == CODE_DMGEOFENCE_DIR) {
                 cursor = dmGeofenceDao.selectAll();
             } else if (code == CODE_DMGEOFENCE_GET_KNOWN_TRANS) {
-                cursor = dmGeofenceDao.selectAllKnownTrans();
-            } else if (code == CODE_DMGEOFENCE_DIR_GET_UNKNOWN_TRANS) {
+                cursor = dmGeofenceDao.selectOneKnownTrans();
+            } else if (code == CODE_DMGEOFENCE_GET_UNKNOWN_TRANS) {
                 cursor = dmGeofenceDao.selectAllUnknownTrans();
-            } else {
+            } else if (code == CODE_DMGEOFENCE_GET_ENTER_TRANS) {
+                cursor = dmGeofenceDao.selectAllEnterTrans();
+            }
+            else {
                 cursor = dmGeofenceDao.selectById(ContentUris.parseId(uri));
             }
             cursor.setNotificationUri(context.getContentResolver(), uri);

@@ -57,12 +57,18 @@ public interface DMGeofenceDao {
     Cursor selectById(long id);
 
     @Query("SELECT * FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_TRANSITION_TYPE +
-            " IN("+DMGeofence.TRANS_ENTER +"," +DMGeofence.TRANS_EXIT +")")
-    Cursor selectAllKnownTrans();
+            "=" +DMGeofence.TRANS_EXIT + " AND "
+            + "("+DMGeofence.COLUMN_IS_START_JOB + "=" + DMGeofence.JOB_NOT_DONE +" OR "
+            + DMGeofence.COLUMN_IS_STOP_JOB + "=" + DMGeofence.JOB_NOT_DONE + ")" + "LIMIT 1")
+    Cursor selectOneKnownTrans();
 
     @Query("SELECT * FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_TRANSITION_TYPE +
             "=" + DMGeofence.TRANS_UNKNOWN)
     Cursor selectAllUnknownTrans();
+
+    @Query("SELECT * FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_TRANSITION_TYPE +
+            "=" + DMGeofence.TRANS_ENTER)
+    Cursor selectAllEnterTrans();
 
     /**
      * Delete a dmgeofence by the ID.
@@ -88,4 +94,7 @@ public interface DMGeofenceDao {
     @Query("UPDATE " + DMGeofence.TABLE_NAME + " SET " + DMGeofence.COLUMN_TRANSITION_TYPE + "= :type"
             + " WHERE " + DMGeofence.COLUMN_ID + " = :id" )
     int updateTransType(long id, int type);
+
+
+
 }
