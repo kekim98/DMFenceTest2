@@ -59,7 +59,7 @@ public interface DMGeofenceDao {
     @Query("SELECT * FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_TRANSITION_TYPE +
             "=" +DMGeofence.TRANS_EXIT + " AND "
             + "("+DMGeofence.COLUMN_IS_START_JOB + "=" + DMGeofence.JOB_NOT_DONE +" OR "
-            + DMGeofence.COLUMN_IS_STOP_JOB + "=" + DMGeofence.JOB_NOT_DONE + ")" + "LIMIT 1")
+            + DMGeofence.COLUMN_IS_STOP_JOB + "=" + DMGeofence.JOB_NOT_DONE + ")" + " LIMIT 1")
     Cursor selectOneKnownTrans();
 
     @Query("SELECT * FROM " + DMGeofence.TABLE_NAME + " WHERE " + DMGeofence.COLUMN_TRANSITION_TYPE +

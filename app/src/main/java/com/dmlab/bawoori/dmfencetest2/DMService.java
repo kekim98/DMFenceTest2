@@ -282,9 +282,11 @@ public class DMService extends Service  {
         values.put(DMGeofence.COLUMN_LATITUDE, geofence.getLatitude());
         values.put(DMGeofence.COLUMN_LONGITUDE, geofence.getLongitude());
         values.put(DMGeofence.COLUMN_PRIORITY, 0);
-        values.put(DMGeofence.COLUMN_RADIUS, 100);
+        values.put(DMGeofence.COLUMN_RADIUS, DMGeofence.DEFAULT_RADIUS);
         values.put(DMGeofence.COLUMN_REG_TIME, Calendar.getInstance().getTimeInMillis());
         values.put(DMGeofence.COLUMN_TRANSITION_TYPE, DMGeofence.TRANS_UNKNOWN);
+        values.put(DMGeofence.COLUMN_IS_START_JOB, DMGeofence.JOB_NOT_DONE);
+        values.put(DMGeofence.COLUMN_IS_STOP_JOB, DMGeofence.JOB_NOT_DONE);
         values.put(DMGeofence.COLUMN_WIFI_MAC_ADDRS, "");
 
         return values;

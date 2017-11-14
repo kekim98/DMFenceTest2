@@ -43,6 +43,7 @@ public class DMGeofence {
     public static final int TRANS_EXIT = 4;
     public static final int JOB_NOT_DONE = 0;
     public static final int JOB_DONE = 1;
+    public static final int DEFAULT_RADIUS = 100;
 
 
     @PrimaryKey(autoGenerate = true)
@@ -65,7 +66,7 @@ public class DMGeofence {
 
     public String wifi_mac_adds;
     public int  priority;
-    public long radius;
+    public int radius;
     public int expire_duration;
 
     public int transition_type;
