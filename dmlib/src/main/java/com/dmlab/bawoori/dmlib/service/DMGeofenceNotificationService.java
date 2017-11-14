@@ -23,17 +23,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
 import android.util.Log;
-
 
 import com.dmlab.bawoori.dmlib.R;
 import com.dmlab.bawoori.dmlib.data.DMGeofence;
-import com.google.android.gms.location.GeofencingEvent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Listener for geofence transition changes.
@@ -115,7 +110,8 @@ public class DMGeofenceNotificationService extends IntentService {
                         triggeringGeofence);
 
                 // Send notification and log the transition details.
-                sendNotification(geofenceTransitionDetails);
+                final String fence_name = intent.getStringExtra("geofencName");
+                sendNotification(geofenceTransitionDetails, fence_name);
                 Log.i(TAG, geofenceTransitionDetails);
             } else {
                 // Log the error.
@@ -149,13 +145,14 @@ public class DMGeofenceNotificationService extends IntentService {
      * Posts a notification in the notification bar when a transition is detected.
      * If the user clicks the notification, control goes to the MainActivity.
      */
-    private void sendNotification(String notificationDetails) {
+    private void sendNotification(String notificationDetails, String fencName) {
 
         // Creates an Intent for the Activity
         Intent notificationIntent = new Intent();
 
         notificationIntent.setAction("com.bawoori.dmlib.ACTION_NOTIFICATION_INTENT");
         notificationIntent.setClassName("com.dmlab.bawoori.dmfencetest2", "com.dmlab.bawoori.dmfencetest2.MainActivity");
+        notificationIntent.putExtra("geofencName", fencName);
 
 // Sets the Activity to start in a new, empty task
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
@@ -193,6 +190,10 @@ public class DMGeofenceNotificationService extends IntentService {
 
         // Issue the notification
         mNotificationManager.notify(0, builder.build());
+
+        PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+        wl.acquire(15000);
     }
 
     /**

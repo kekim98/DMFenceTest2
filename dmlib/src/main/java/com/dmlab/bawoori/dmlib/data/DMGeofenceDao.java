@@ -96,5 +96,11 @@ public interface DMGeofenceDao {
     int updateTransType(long id, int type);
 
 
+    @Query("UPDATE " + DMGeofence.TABLE_NAME + " SET " + DMGeofence.COLUMN_IS_START_JOB + "= :v"
+            + " WHERE " + DMGeofence.COLUMN_NAME + " = :d" )
+    int updateIsJobStart(String d, int v);
 
+    @Query("UPDATE " + DMGeofence.TABLE_NAME + " SET " + DMGeofence.COLUMN_IS_STOP_JOB + "= :vv"
+            + " WHERE " + DMGeofence.COLUMN_NAME + " = :dd" )
+    int updateIsJobStop(String dd, int vv);
 }

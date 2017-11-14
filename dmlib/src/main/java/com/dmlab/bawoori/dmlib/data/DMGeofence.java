@@ -42,6 +42,7 @@ public class DMGeofence {
     public static final int TRANS_STOP = 3;
     public static final int TRANS_EXIT = 4;
     public static final int JOB_NOT_DONE = 0;
+    public static final int JOB_DONE = 1;
 
 
     @PrimaryKey(autoGenerate = true)
@@ -120,6 +121,13 @@ public class DMGeofence {
         if (values.containsKey(COLUMN_PRIORITY)){
             dmGeofence.priority = values.getAsInteger(COLUMN_PRIORITY);
         }
+        if (values.containsKey(COLUMN_IS_START_JOB)){
+            dmGeofence.is_start_job = values.getAsInteger(COLUMN_IS_START_JOB);
+        }
+        if (values.containsKey(COLUMN_IS_STOP_JOB)){
+            dmGeofence.is_stop_job = values.getAsInteger(COLUMN_IS_STOP_JOB);
+        }
+
 
 
         return dmGeofence;

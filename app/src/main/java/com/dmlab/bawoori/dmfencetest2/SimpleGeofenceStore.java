@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import static com.dmlab.bawoori.dmfencetest2.Constants.INVALID_FLOAT_VALUE;
 import static com.dmlab.bawoori.dmfencetest2.Constants.INVALID_INT_VALUE;
 import static com.dmlab.bawoori.dmfencetest2.Constants.INVALID_LONG_VALUE;

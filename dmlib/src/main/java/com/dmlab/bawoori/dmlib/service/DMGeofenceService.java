@@ -2,20 +2,16 @@ package com.dmlab.bawoori.dmlib.service;
 
 import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
-import android.net.Uri;
-import android.provider.BaseColumns;
 import android.util.Log;
-
 
 import com.dmlab.bawoori.dmlib.data.DMGeofence;
 
 import java.util.Calendar;
 
-import static com.dmlab.bawoori.dmlib.data.DMGeofence.COLUMN_TRANSITION_TYPE;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_ENTER_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_KNOWN_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_UNKNOWN_TRANS;
@@ -112,24 +108,10 @@ public class DMGeofenceService extends IntentService {
 
     private void handleActionDMGeofence(Double latitude, Double longitude) {
 
-/*        final Cursor cursor = getContentResolver().query(
-                URI_DMGEOFENCE.buildUpon().appendPath(PATH_GET_KNOWN_TRANS).build(),
-                null,null,null,null);
-
-        final int count = cursor.getCount();
-        cursor.close();
-
-        Log.d(TAG, "handleActionDMGeofence: count=" + String.valueOf(count) );
-        if (count > 0) {
-            triggerExitEvent(latitude, longitude);
-
-        }else{
-            triggerEnterEvent(latitude, longitude);
-        }*/
-        triggerEnterEvent(latitude, longitude);
+        triggerStartOrStop();
         triggerExitEvent(latitude, longitude);
-      //  triggerStartOrStop();
-
+        triggerEnterEvent(latitude, longitude);
+    
     }
 
     private void triggerStartOrStop() {
@@ -174,7 +156,7 @@ public class DMGeofenceService extends IntentService {
                 Double dLongitude =cursor.getDouble(cursor.getColumnIndex(DMGeofence.COLUMN_LONGITUDE));
                 int radisu =cursor.getInt(cursor.getColumnIndex(DMGeofence.COLUMN_RADIUS));
 
-                float exit = radisu - (radisu * EXIT_RADIUS_PERCENT);
+                float exit = radisu + (radisu * EXIT_RADIUS_PERCENT);
                 float[] results = {0, 0,0};
                 Location.distanceBetween(latitude, longitude, dLatitude, dLongitude,results);
 

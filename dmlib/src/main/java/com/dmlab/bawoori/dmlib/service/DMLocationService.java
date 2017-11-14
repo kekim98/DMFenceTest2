@@ -6,7 +6,6 @@ import android.location.Location;
 import android.os.IBinder;
 import android.util.Log;
 
-
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -24,7 +23,7 @@ public class DMLocationService extends Service {
     private static final long SCHEDULE_PERIOD = 10 * 1000;
     private static final long UPDATE_INTERVAL = 10 * 1000;
     private static final long FASTEST_INTERVAL = 2 * 1000;
-    private static final float LIMIT_ACCURACY = 60f;
+    private static final float LIMIT_ACCURACY = 90f;
     private static final String TAG = DMLocationService.class.getSimpleName();
 
 

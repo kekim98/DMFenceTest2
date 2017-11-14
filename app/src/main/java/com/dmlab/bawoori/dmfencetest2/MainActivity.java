@@ -1,7 +1,6 @@
 package com.dmlab.bawoori.dmfencetest2;
 
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -18,13 +17,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider;
-
-import static java.lang.String.valueOf;
+import android.widget.Toast;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PopupDialogFragment.Listener{
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int LOADER_DMGEOFENCE = 1;
     DMService mService;
@@ -62,16 +58,33 @@ public class MainActivity extends AppCompatActivity {
             }
         }) ;
 
+        if (savedInstanceState == null) {
+            Intent i = getIntent();
+            if (i != null && i.getAction().equals("com.bawoori.dmlib.ACTION_NOTIFICATION_INTENT")) {
+                showNoticeDialog();
+            }
+        }
 
+    }
+
+    public void showNoticeDialog() {
+        // Create an instance of the dialog fragment and show it
+        PopupDialogFragment dialog = PopupDialogFragment.newInstance(2);
+        dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        // Bind to DMService
-//        Intent intent = new Intent(this, DMService.class);
-//        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent != null && intent.getAction().equals("com.bawoori.dmlib.ACTION_NOTIFICATION_INTENT")) {
+            showNoticeDialog();
+        }
     }
 
     private static final int REQUEST_SCAN_ALWAYS_AVAILABLE = 1;
@@ -166,13 +179,13 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.add_fences:
                 addDMGeofences();
+                Toast.makeText(this, "위치정보들이 GeoFence에 등록되었습니다.", Toast.LENGTH_SHORT).show();
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
     private void addDMGeofences() {
         Log.d(TAG, "addDMGeofences: ................");
 
@@ -184,4 +197,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onItemClicked(int position) {
+
+        Log.d(TAG, "onItemClicked: position=" + String.valueOf(position));
+        final String geofencName = getIntent().getStringExtra("geofencName");
+        if (mBound && geofencName != null) {
+            mService.setJobStatus(position, geofencName);
+        }
+    }
 }

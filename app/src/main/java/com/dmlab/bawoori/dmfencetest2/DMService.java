@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.dmlab.bawoori.dmlib.data.DMGeofence;
 import com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider;
@@ -16,6 +17,10 @@ import java.util.List;
 
 import static com.dmlab.bawoori.dmfencetest2.Constants.ANDROID_BUILDING_RADIUS_METERS;
 import static com.dmlab.bawoori.dmfencetest2.Constants.GEOFENCE_EXPIRATION_TIME;
+import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_IS_JOB_START;
+import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_IS_JOB_STOP;
+import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_TRANS;
+import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.URI_DMGEOFENCE;
 
 
 public class DMService extends Service  {
@@ -30,7 +35,29 @@ public class DMService extends Service  {
   //  private GeofencingClient mGeofencingClient;
     private SimpleGeofenceStore mGeofenceStorage;
     private PendingIntent mGeofencePendingIntent;
-  //  private List<Geofence> mGeofenceList;
+
+    public void setJobStatus(int position, String geofencName) {
+        ContentValues contentValue = new ContentValues();
+        int count = 0;
+        if (position == 0) {
+            contentValue.put(DMGeofence.COLUMN_NAME, geofencName);
+            contentValue.put(DMGeofence.COLUMN_IS_START_JOB, DMGeofence.JOB_DONE);
+            count = getContentResolver().update(URI_DMGEOFENCE.buildUpon().appendPath(PATH_UPDATE_IS_JOB_START).build(),
+                    contentValue, null, null);
+        }
+        else if (position == 1) {
+            contentValue.put(DMGeofence.COLUMN_NAME, geofencName);
+            contentValue.put(DMGeofence.COLUMN_IS_STOP_JOB, DMGeofence.JOB_DONE);
+            count = getContentResolver().update(URI_DMGEOFENCE.buildUpon().appendPath(PATH_UPDATE_IS_JOB_STOP).build(),
+                    contentValue, null, null);
+        }
+
+        Log.d(TAG, "triggerEnterEvent: updated count=" + String.valueOf(count));
+    }
+
+
+
+    //  private List<Geofence> mGeofenceList;
   //  private PendingGeofenceTask mPendingGeofenceTask = PendingGeofenceTask.NONE;
 
 /*

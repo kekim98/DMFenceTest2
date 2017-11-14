@@ -64,6 +64,9 @@ public class DMGeofenceProvider extends ContentProvider {
     public static final String PATH_GET_ENTER_TRANS = "get_enter_trans";
    // public static final String PATH_GET_STARTORSTOP_TRANS = "get_startorstop_trans";
     public static final String PATH_UPDATE_TRANS = "update_trans_type";
+    public static final String PATH_UPDATE_IS_JOB_START = "update_is_job_start";
+    public static final String PATH_UPDATE_IS_JOB_STOP = "update_is_job_stop";
+
 
     /** The match code for some items in the Cheese table. */
     private static final int CODE_DMGEOFENCE_DIR = 1;
@@ -72,12 +75,14 @@ public class DMGeofenceProvider extends ContentProvider {
     private static final int CODE_DMGEOFENCE_GET_UNKNOWN_TRANS = 4;
     private static final int CODE_DMGEOFENCE_GET_ENTER_TRANS = 5;
     private static final int CODE_DMGEOFENCE_UPDATE_TRANS_TYPE = 6;
+    private static final int CODE_DMGEOFENCE_UPDATE_IS_JOB_START = 7;
+    private static final int CODE_DMGEOFENCE_UPDATE_IS_JOB_STOP = 8;
 
 
-    private static final int CODE_CHEESE_DIR = 7;
+    private static final int CODE_CHEESE_DIR = 9;
 
     /** The match code for an item in the Cheese table. */
-    private static final int CODE_CHEESE_ITEM = 8;
+    private static final int CODE_CHEESE_ITEM = 10;
 
     /** The URI matcher. */
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
@@ -90,6 +95,8 @@ public class DMGeofenceProvider extends ContentProvider {
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_GET_UNKNOWN_TRANS, CODE_DMGEOFENCE_GET_UNKNOWN_TRANS);
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_GET_ENTER_TRANS, CODE_DMGEOFENCE_GET_ENTER_TRANS);
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_UPDATE_TRANS , CODE_DMGEOFENCE_UPDATE_TRANS_TYPE);
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_UPDATE_IS_JOB_START , CODE_DMGEOFENCE_UPDATE_IS_JOB_START);
+        MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_UPDATE_IS_JOB_STOP , CODE_DMGEOFENCE_UPDATE_IS_JOB_STOP);
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/*", CODE_DMGEOFENCE_ITEM);
 
         MATCHER.addURI(AUTHORITY, Cheese.TABLE_NAME, CODE_CHEESE_DIR);
@@ -283,6 +290,19 @@ public class DMGeofenceProvider extends ContentProvider {
                 final int type = dmGeofence.transition_type;
                 count = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
                         .updateTransType(id, type);
+                return count;
+
+            case CODE_DMGEOFENCE_UPDATE_IS_JOB_START:
+                final String d = dmGeofence.fence_id;
+                final int v = dmGeofence.is_start_job;
+                count = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
+                        .updateIsJobStart(d, v);
+                return count;
+            case CODE_DMGEOFENCE_UPDATE_IS_JOB_STOP:
+                final String dd = dmGeofence.fence_id;
+                final int vv = dmGeofence.is_stop_job;
+                count = DMGeofenceDatabase.getInstance(context).dmGeofenceDao()
+                        .updateIsJobStop(dd, vv);
                 return count;
 
 
