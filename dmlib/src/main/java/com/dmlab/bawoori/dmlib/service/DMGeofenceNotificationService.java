@@ -155,15 +155,16 @@ public class DMGeofenceNotificationService extends IntentService {
         Intent notificationIntent = new Intent();
 
         notificationIntent.setAction("com.bawoori.dmlib.ACTION_NOTIFICATION_INTENT");
+        notificationIntent.setClassName("com.dmlab.bawoori.dmfencetest2", "com.dmlab.bawoori.dmfencetest2.MainActivity");
 
 // Sets the Activity to start in a new, empty task
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                Intent.FLAG_ACTIVITY_SINGLE_TOP);
 // Creates the PendingIntent
 
         PendingIntent notificationPendingIntent =
                 PendingIntent.getActivity(
-                        this,
+                        getApplicationContext(),
                         0,
                         notificationIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT
