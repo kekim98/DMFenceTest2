@@ -75,6 +75,14 @@
             android:textAlignment="viewStart"
             tools:ignore="HardcodedText" />
 
+        <TextView
+            android:id="@+id/logCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="start"
+            android:text="0" />
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

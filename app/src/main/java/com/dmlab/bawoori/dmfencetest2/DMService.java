@@ -4,23 +4,28 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.dmlab.bawoori.dmlib.data.DMGeofence;
+import com.dmlab.bawoori.dmlib.data.DMLog;
 import com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.List;
 
 import static com.dmlab.bawoori.dmfencetest2.Constants.ANDROID_BUILDING_RADIUS_METERS;
 import static com.dmlab.bawoori.dmfencetest2.Constants.GEOFENCE_EXPIRATION_TIME;
+import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_DMLOG;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_IS_JOB_START;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_IS_JOB_STOP;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.URI_DMGEOFENCE;
+import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.URI_DMLOG;
 
 
 public class DMService extends Service  {
@@ -55,6 +60,18 @@ public class DMService extends Service  {
         Log.d(TAG, "triggerEnterEvent: updated count=" + String.valueOf(count));
     }
 
+    public int getLogCount(String fenceId) {
+        final Cursor cursor = getContentResolver().query(URI_DMLOG.buildUpon().appendPath(PATH_GET_DMLOG).build(),
+                null,fenceId, null, null);
+
+        try{
+            int count = cursor.getCount();
+            return count;
+
+        }finally {
+            cursor.close();
+        }
+    }
 
 
     //  private List<Geofence> mGeofenceList;
@@ -259,6 +276,8 @@ public class DMService extends Service  {
 
         getContentResolver().delete(DMGeofenceProvider.URI_DMGEOFENCE, null, null);
 
+        getContentResolver().delete(DMGeofenceProvider.URI_DMLOG, null, null);
+
         List<ContentValues> geofenceList =  new ArrayList<ContentValues>();
         for (String id : getAllFenceIDs()) {
             SimpleGeofence geofence = mGeofenceStorage.getGeofence(id);
@@ -268,6 +287,8 @@ public class DMService extends Service  {
 
         ContentValues[] simpleArray = new ContentValues[ geofenceList.size() ];
         geofenceList.toArray( simpleArray );
+
+
 
         return getContentResolver().bulkInsert(DMGeofenceProvider.URI_DMGEOFENCE,simpleArray);
 

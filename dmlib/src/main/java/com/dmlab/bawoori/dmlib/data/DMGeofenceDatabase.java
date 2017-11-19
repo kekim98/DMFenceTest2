@@ -26,14 +26,14 @@ import android.support.annotation.VisibleForTesting;
 /**
  * The Room database.
  */
-@Database(entities = {Cheese.class, DMGeofence.class}, version = 1)
+@Database(entities = {DMLog.class, DMGeofence.class}, version = 1)
 public abstract class DMGeofenceDatabase extends RoomDatabase {
 
     /**
-     * @return The DAO for the Cheese table.
+     * @return The DAO for the DMLog table.
      */
     @SuppressWarnings("WeakerAccess")
-    public abstract CheeseDao cheese();
+    public abstract DMLogDao dmLogDao();
     public abstract DMGeofenceDao dmGeofenceDao();
 
     /** The only instance */
@@ -50,7 +50,7 @@ public abstract class DMGeofenceDatabase extends RoomDatabase {
             sInstance = Room
                     .databaseBuilder(context.getApplicationContext(), DMGeofenceDatabase.class, "ex")
                     .build();
-            sInstance.populateInitialData();
+         //   sInstance.populateInitialData();
         }
         return sInstance;
     }
@@ -66,23 +66,6 @@ public abstract class DMGeofenceDatabase extends RoomDatabase {
                 DMGeofenceDatabase.class).build();
     }
 
-    /**
-     * Inserts the dummy data into the database if it is currently empty.
-     */
-    private void populateInitialData() {
-        if (cheese().count() == 0) {
-            Cheese cheese = new Cheese();
-            beginTransaction();
-            try {
-                for (int i = 0; i < Cheese.CHEESES.length; i++) {
-                    cheese.name = Cheese.CHEESES[i];
-                    cheese().insert(cheese);
-                }
-                setTransactionSuccessful();
-            } finally {
-                endTransaction();
-            }
-        }
-    }
+
 
 }

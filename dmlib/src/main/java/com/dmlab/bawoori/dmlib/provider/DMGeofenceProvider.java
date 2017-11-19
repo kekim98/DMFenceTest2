@@ -30,8 +30,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.dmlab.bawoori.dmlib.data.Cheese;
-import com.dmlab.bawoori.dmlib.data.CheeseDao;
+import com.dmlab.bawoori.dmlib.data.DMLog;
+import com.dmlab.bawoori.dmlib.data.DMLogDao;
 import com.dmlab.bawoori.dmlib.data.DMGeofence;
 import com.dmlab.bawoori.dmlib.data.DMGeofenceDao;
 import com.dmlab.bawoori.dmlib.data.DMGeofenceDatabase;
@@ -51,13 +51,13 @@ public class DMGeofenceProvider extends ContentProvider {
     /** The authority of this content provider. */
     public static final String AUTHORITY = "com.dmlab.bawoori.dmlib.contentprovidersample.provider";
 
-    /** The URI for the Cheese table. */
+    /** The URI for the DMLog table. */
     public static final Uri URI_DMGEOFENCE = Uri.parse(
             "content://" + AUTHORITY + "/" + DMGeofence.TABLE_NAME);
 
 
-    public static final Uri URI_CHEESE = Uri.parse(
-            "content://" + AUTHORITY + "/" + Cheese.TABLE_NAME);
+    public static final Uri URI_DMLOG = Uri.parse(
+            "content://" + AUTHORITY + "/" + DMLog.TABLE_NAME);
 
     public static final String PATH_GET_KNOWN_TRANS = "get_known_trans";
     public static final String PATH_GET_UNKNOWN_TRANS = "get_unknown_trans";
@@ -66,9 +66,10 @@ public class DMGeofenceProvider extends ContentProvider {
     public static final String PATH_UPDATE_TRANS = "update_trans_type";
     public static final String PATH_UPDATE_IS_JOB_START = "update_is_job_start";
     public static final String PATH_UPDATE_IS_JOB_STOP = "update_is_job_stop";
+    public static final String PATH_GET_DMLOG="get_dmlog";
 
 
-    /** The match code for some items in the Cheese table. */
+    /** The match code for some items in the DMLog table. */
     private static final int CODE_DMGEOFENCE_DIR = 1;
     private static final int CODE_DMGEOFENCE_ITEM = 2;
     private static final int CODE_DMGEOFENCE_GET_KNOWN_TRANS = 3;
@@ -79,10 +80,11 @@ public class DMGeofenceProvider extends ContentProvider {
     private static final int CODE_DMGEOFENCE_UPDATE_IS_JOB_STOP = 8;
 
 
-    private static final int CODE_CHEESE_DIR = 9;
+    private static final int CODE_DMLOG_DIR = 9;
 
-    /** The match code for an item in the Cheese table. */
-    private static final int CODE_CHEESE_ITEM = 10;
+    /** The match code for an item in the DMLog table. */
+    private static final int CODE_DMLOG_ITEM = 10;
+    private static final int CODE_DMLOG_GET_LOG = 11;
 
     /** The URI matcher. */
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
@@ -99,8 +101,10 @@ public class DMGeofenceProvider extends ContentProvider {
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/" + PATH_UPDATE_IS_JOB_STOP , CODE_DMGEOFENCE_UPDATE_IS_JOB_STOP);
         MATCHER.addURI(AUTHORITY, DMGeofence.TABLE_NAME + "/*", CODE_DMGEOFENCE_ITEM);
 
-        MATCHER.addURI(AUTHORITY, Cheese.TABLE_NAME, CODE_CHEESE_DIR);
-        MATCHER.addURI(AUTHORITY, Cheese.TABLE_NAME + "/*", CODE_CHEESE_ITEM);
+        MATCHER.addURI(AUTHORITY, DMLog.TABLE_NAME, CODE_DMLOG_DIR);
+        MATCHER.addURI(AUTHORITY, DMLog.TABLE_NAME + "/" + PATH_GET_DMLOG, CODE_DMLOG_GET_LOG);
+        MATCHER.addURI(AUTHORITY, DMLog.TABLE_NAME + "/*", CODE_DMLOG_ITEM);
+
     }
 
     private DMLocationServiceHelper mGeoFenceHelperService;
@@ -153,21 +157,35 @@ public class DMGeofenceProvider extends ContentProvider {
 
         }
 
-        else if (code == CODE_CHEESE_DIR || code == CODE_CHEESE_ITEM) {
+        else if (code == CODE_DMLOG_DIR || code == CODE_DMLOG_ITEM) {
             final Context context = getContext();
             if (context == null) {
                 return null;
             }
-            CheeseDao cheese = DMGeofenceDatabase.getInstance(context).cheese();
+            DMLogDao dmLogDao = DMGeofenceDatabase.getInstance(context).dmLogDao();
             final Cursor cursor;
-            if (code == CODE_CHEESE_DIR) {
-                cursor = cheese.selectAll();
+            if (code == CODE_DMLOG_DIR) {
+                cursor = dmLogDao.selectAll();
             } else {
-                cursor = cheese.selectById(ContentUris.parseId(uri));
+                cursor = dmLogDao.selectById(ContentUris.parseId(uri));
             }
             cursor.setNotificationUri(context.getContentResolver(), uri);
             return cursor;
-        } else {
+        }
+        else if (code == CODE_DMLOG_GET_LOG){
+            final Context context = getContext();
+            if (context == null) {
+                return null;
+            }
+            DMLogDao dmLogDao = DMGeofenceDatabase.getInstance(context).dmLogDao();
+            final Cursor cursor;
+
+                cursor = dmLogDao.selectByFenceId(selection);
+
+            cursor.setNotificationUri(context.getContentResolver(), uri);
+            return cursor;
+        }
+        else {
             throw new IllegalArgumentException("Unknown URI: " + uri);
         }
     }
@@ -182,10 +200,10 @@ public class DMGeofenceProvider extends ContentProvider {
                 return "vnd.android.cursor.item/" + AUTHORITY + "." + DMGeofence.TABLE_NAME;
 
 
-            case CODE_CHEESE_DIR:
-                return "vnd.android.cursor.dir/" + AUTHORITY + "." + Cheese.TABLE_NAME;
-            case CODE_CHEESE_ITEM:
-                return "vnd.android.cursor.item/" + AUTHORITY + "." + Cheese.TABLE_NAME;
+            case CODE_DMLOG_DIR:
+                return "vnd.android.cursor.dir/" + AUTHORITY + "." + DMLog.TABLE_NAME;
+            case CODE_DMLOG_ITEM:
+                return "vnd.android.cursor.item/" + AUTHORITY + "." + DMLog.TABLE_NAME;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -209,16 +227,16 @@ public class DMGeofenceProvider extends ContentProvider {
                 throw new IllegalArgumentException("Invalid URI, cannot insert with ID: " + uri);
 
 
-            case CODE_CHEESE_DIR:
+            case CODE_DMLOG_DIR:
                // final Context context = getContext();
                 if (context == null) {
                     return null;
                 }
-                id = DMGeofenceDatabase.getInstance(context).cheese()
-                        .insert(Cheese.fromContentValues(values));
+                id = DMGeofenceDatabase.getInstance(context).dmLogDao()
+                        .insert(DMLog.fromContentValues(values));
                 context.getContentResolver().notifyChange(uri, null);
                 return ContentUris.withAppendedId(uri, id);
-            case CODE_CHEESE_ITEM:
+            case CODE_DMLOG_ITEM:
                 throw new IllegalArgumentException("Invalid URI, cannot insert with ID: " + uri);
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -250,17 +268,25 @@ public class DMGeofenceProvider extends ContentProvider {
                 return count;
 
 
-            case CODE_CHEESE_DIR:
-                throw new IllegalArgumentException("Invalid URI, cannot update without ID" + uri);
-            case CODE_CHEESE_ITEM:
+            case CODE_DMLOG_DIR:
+                if (context == null) {
+                    return 0;
+                }
+                count = DMGeofenceDatabase.getInstance(context).dmLogDao()
+                        .deleteAll();
+                context.getContentResolver().notifyChange(uri, null);
+                return count;
+            case CODE_DMLOG_ITEM:
             //    final Context context = getContext();
                 if (context == null) {
                     return 0;
                 }
-                count = DMGeofenceDatabase.getInstance(context).cheese()
+                count = DMGeofenceDatabase.getInstance(context).dmLogDao()
                         .deleteById(ContentUris.parseId(uri));
                 context.getContentResolver().notifyChange(uri, null);
                 return count;
+
+
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -306,17 +332,24 @@ public class DMGeofenceProvider extends ContentProvider {
                 return count;
 
 
-            case CODE_CHEESE_DIR:
-                throw new IllegalArgumentException("Invalid URI, cannot update without ID" + uri);
-            case CODE_CHEESE_ITEM:
+            case CODE_DMLOG_DIR:
+                if (context == null) {
+                    return 0;
+                }
+                final DMLog dl = DMLog.fromContentValues(values);
+                count = DMGeofenceDatabase.getInstance(context).dmLogDao()
+                        .updateUnknown(dl.getFence_id());
+                context.getContentResolver().notifyChange(uri, null);
+                return count;
+            case CODE_DMLOG_ITEM:
 
                 if (context == null) {
                     return 0;
                 }
-                final Cheese cheese = Cheese.fromContentValues(values);
-                cheese.id = ContentUris.parseId(uri);
-                count = DMGeofenceDatabase.getInstance(context).cheese()
-                        .update(cheese);
+                final DMLog dmLog = DMLog.fromContentValues(values);
+                dmLog.id = ContentUris.parseId(uri);
+                count = DMGeofenceDatabase.getInstance(context).dmLogDao()
+                        .update(dmLog);
                 context.getContentResolver().notifyChange(uri, null);
                 return count;
             default:
@@ -364,18 +397,18 @@ public class DMGeofenceProvider extends ContentProvider {
             case CODE_DMGEOFENCE_ITEM:
                 throw new IllegalArgumentException("Invalid URI, cannot insert with ID: " + uri);
 
-            case CODE_CHEESE_DIR:
+            case CODE_DMLOG_DIR:
                // final Context context = getContext();
                 if (context == null) {
                     return 0;
                 }
               //  final DMGeofenceDatabase database = DMGeofenceDatabase.getInstance(context);
-                final Cheese[] cheeses = new Cheese[valuesArray.length];
+                final DMLog[] DMLogs = new DMLog[valuesArray.length];
                 for (int i = 0; i < valuesArray.length; i++) {
-                    cheeses[i] = Cheese.fromContentValues(valuesArray[i]);
+                    DMLogs[i] = DMLog.fromContentValues(valuesArray[i]);
                 }
-                return database.cheese().insertAll(cheeses).length;
-            case CODE_CHEESE_ITEM:
+                return database.dmLogDao().insertAll(DMLogs).length;
+            case CODE_DMLOG_ITEM:
                 throw new IllegalArgumentException("Invalid URI, cannot insert with ID: " + uri);
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);

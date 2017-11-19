@@ -86,10 +86,12 @@ public class FenceInfoActivity extends AppCompatActivity {
 
                 Bundle extras = getIntent().getExtras();
                 DMInfo dmInfo = null;
+                int logCount=0;
 
                 if (extras != null) {
                     FENCE_ID = extras.getString("FENCE_ID");
                     dmInfo = mService.getFence(FENCE_ID);
+                    logCount= mService.getLogCount(FENCE_ID);
                     //The key argument here must match that used in the other activity
                 }
 
@@ -99,6 +101,7 @@ public class FenceInfoActivity extends AppCompatActivity {
                     TextView longitude = (TextView) findViewById(R.id.longitude);
                     TextView radius = (TextView) findViewById(R.id.radius);
                     TextView transition_type = (TextView) findViewById(R.id.transition_type);
+                    TextView log_count = findViewById(R.id.logCount);
 
                     fence_id.setText(String.format(Locale.ENGLISH, "%s: %s",
                             "ID",
@@ -115,6 +118,9 @@ public class FenceInfoActivity extends AppCompatActivity {
                     transition_type.setText(String.format(Locale.ENGLISH, "%s: %d",
                             "TRANSITION_TYPE",
                             dmInfo.getType()));
+                    log_count.setText(String.format(Locale.ENGLISH, "%s: %d",
+                            "LOG_COUNT",
+                            logCount));;
 
                 }
 

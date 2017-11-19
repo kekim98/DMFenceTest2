@@ -2,46 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "319ce2bc04298555eb612ca3efdca7cd",
+    "identityHash": "00f6a59eddbd5ebddea8980d1585d83b",
     "entities": [
       {
-        "tableName": "cheeses",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "_id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_cheeses__id",
-            "unique": false,
-            "columnNames": [
-              "_id"
-            ],
-            "createSql": "CREATE  INDEX `index_cheeses__id` ON `${TABLE_NAME}` (`_id`)"
-          }
-        ],
-        "foreignKeys": []
-      },
-      {
-        "tableName": "t_dm_geofence",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fence_id` TEXT NOT NULL, `latitude` INTEGER NOT NULL, `longitude` INTEGER NOT NULL, `address` TEXT, `cell_id` INTEGER NOT NULL, `wifi_mac_adds` TEXT, `priority` INTEGER NOT NULL, `radius` INTEGER NOT NULL, `expire_duration` INTEGER NOT NULL, `transition_type` INTEGER NOT NULL, `reg_time` TEXT)",
+        "tableName": "t_dm_log",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fence_id` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `reg_time` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -58,13 +23,66 @@
           {
             "fieldPath": "latitude",
             "columnName": "latitude",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "longitude",
             "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reg_time",
+            "columnName": "reg_time",
             "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_t_dm_log__id",
+            "unique": false,
+            "columnNames": [
+              "_id"
+            ],
+            "createSql": "CREATE  INDEX `index_t_dm_log__id` ON `${TABLE_NAME}` (`_id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "t_dm_geofence",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fence_id` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `address` TEXT, `cell_id` INTEGER NOT NULL, `wifi_mac_adds` TEXT, `priority` INTEGER NOT NULL, `radius` INTEGER NOT NULL, `expire_duration` INTEGER NOT NULL, `transition_type` INTEGER NOT NULL, `is_start_job` INTEGER NOT NULL, `is_stop_job` INTEGER NOT NULL, `reg_time` INTEGER NOT NULL, `enter_time` INTEGER NOT NULL, `exit_time` INTEGER NOT NULL, `job_start_time` INTEGER NOT NULL, `job_stop_time` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fence_id",
+            "columnName": "fence_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
             "notNull": true
           },
           {
@@ -110,10 +128,46 @@
             "notNull": true
           },
           {
+            "fieldPath": "is_start_job",
+            "columnName": "is_start_job",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "is_stop_job",
+            "columnName": "is_stop_job",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "reg_time",
             "columnName": "reg_time",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "enter_time",
+            "columnName": "enter_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "exit_time",
+            "columnName": "exit_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "job_start_time",
+            "columnName": "job_start_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "job_stop_time",
+            "columnName": "job_stop_time",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -145,7 +199,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"319ce2bc04298555eb612ca3efdca7cd\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"00f6a59eddbd5ebddea8980d1585d83b\")"
     ]
   }
 }

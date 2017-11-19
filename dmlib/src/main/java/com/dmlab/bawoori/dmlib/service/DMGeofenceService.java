@@ -6,17 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
 import android.util.Log;
 
 import com.dmlab.bawoori.dmlib.data.DMGeofence;
+import com.dmlab.bawoori.dmlib.data.DMLog;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_ENTER_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_KNOWN_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_UNKNOWN_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.URI_DMGEOFENCE;
+import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.URI_DMLOG;
 
 
 /**
@@ -111,7 +115,33 @@ public class DMGeofenceService extends IntentService {
         triggerStartOrStop();
         triggerExitEvent(latitude, longitude);
         triggerEnterEvent(latitude, longitude);
+        saveLog(latitude,longitude);
     
+    }
+
+    private void saveLog(Double latitude, Double longitude) {
+        final Cursor checkEnterCursor = getContentResolver().query(
+                URI_DMGEOFENCE.buildUpon().appendPath(PATH_GET_ENTER_TRANS).build(),
+                null,null,null,null);
+
+        final Cursor checkUnknownCursor = getContentResolver().query(
+                URI_DMGEOFENCE.buildUpon().appendPath(PATH_GET_UNKNOWN_TRANS).build(),
+                null,null,null,null);
+
+
+        if(checkEnterCursor.getCount() > 0 && checkUnknownCursor.getCount() > 0){
+            final ContentValues values = new ContentValues();
+            values.put(DMLog.COLUMN_DM_ID, "UNKNOWN");
+            values.put(DMLog.COLUMN_LATITUDE, latitude);
+            values.put(DMLog.COLUMN_LONGITUDE, longitude);
+            values.put(DMLog.COLUMN_REG_TIME,new Date().getTime());
+
+
+           getContentResolver().insert(URI_DMLOG, values);
+
+
+        }
+
     }
 
     private void triggerStartOrStop() {
@@ -164,6 +194,7 @@ public class DMGeofenceService extends IntentService {
                     Log.d(TAG, "triggerExitEvent: Exited.........");
                     ContentValues contentValue = new ContentValues();
                     final long id = cursor.getLong(cursor.getColumnIndex(DMGeofence.COLUMN_ID));
+                    final String fence_name = cursor.getString(cursor.getColumnIndex(DMGeofence.COLUMN_NAME));
                     contentValue.put(DMGeofence.COLUMN_ID, id);
                     contentValue.put(DMGeofence.COLUMN_TRANSITION_TYPE, DMGeofence.TRANS_EXIT);
                     final int count = getContentResolver().update(URI_DMGEOFENCE.buildUpon().appendPath(PATH_UPDATE_TRANS).build(),
@@ -174,6 +205,7 @@ public class DMGeofenceService extends IntentService {
                     final long time = Calendar.getInstance().getTimeInMillis();
                     DMGeofenceNotificationService.startActionExitNotification(getApplicationContext(), geofenName, time);
 
+                    udpateDmLog(fence_name);
                     break;
                 }
 
@@ -187,8 +219,31 @@ public class DMGeofenceService extends IntentService {
         }
     }
 
+    private void udpateDmLog(String fence_name) {
+        ContentValues contentValue = new ContentValues();
+        contentValue.put(DMLog.COLUMN_DM_ID, fence_name);
+        final int count = getContentResolver().update(URI_DMLOG,
+                contentValue, null, null);
+
+    }
+
     private void triggerEnterEvent(Double latitude, Double longitude) {
         //Log.d(TAG, "triggerEnterEvent: ...................");
+        final Cursor checkCursor = getContentResolver().query(
+                URI_DMGEOFENCE.buildUpon().appendPath(PATH_GET_ENTER_TRANS).build(),
+                null,null,null,null);
+
+        try{
+            if(checkCursor.getCount() > 0) {
+                checkCursor.close();
+                return;
+            }
+
+        }finally {
+            checkCursor.close();
+        }
+
+
         final Cursor cursor = getContentResolver().query(
                 URI_DMGEOFENCE.buildUpon().appendPath(PATH_GET_UNKNOWN_TRANS).build(),
                 null,null,null,null);
