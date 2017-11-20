@@ -1,4 +1,4 @@
-package com.dmlab.bawoori.dmfencetest2;
+package com.dmlab.bawoori.dmlib.dmINF;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -10,20 +10,15 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.dmlab.bawoori.dmlib.data.DMGeofence;
-import com.dmlab.bawoori.dmlib.data.DMLog;
 import com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Currency;
 import java.util.List;
 
-import static com.dmlab.bawoori.dmfencetest2.Constants.ANDROID_BUILDING_RADIUS_METERS;
-import static com.dmlab.bawoori.dmfencetest2.Constants.GEOFENCE_EXPIRATION_TIME;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_GET_DMLOG;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_IS_JOB_START;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_IS_JOB_STOP;
-import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.PATH_UPDATE_TRANS;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.URI_DMGEOFENCE;
 import static com.dmlab.bawoori.dmlib.provider.DMGeofenceProvider.URI_DMLOG;
 
@@ -247,8 +242,8 @@ public class DMService extends Service  {
         Double longitue = info.getLongitude();
 
         SimpleGeofence geofence = new SimpleGeofence(id, latitude, longitue,
-                ANDROID_BUILDING_RADIUS_METERS,
-                GEOFENCE_EXPIRATION_TIME,
+                Constants.ANDROID_BUILDING_RADIUS_METERS,
+                Constants.GEOFENCE_EXPIRATION_TIME,
                 1 | 2);
 
         mGeofenceStorage.setGeofence(id, geofence);

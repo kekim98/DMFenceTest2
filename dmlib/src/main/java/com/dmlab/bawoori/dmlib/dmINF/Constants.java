@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dmlab.bawoori.dmfencetest2;
+package com.dmlab.bawoori.dmlib.dmINF;
 
 import android.net.Uri;
 

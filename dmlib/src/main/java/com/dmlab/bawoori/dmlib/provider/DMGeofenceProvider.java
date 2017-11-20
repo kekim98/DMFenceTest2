@@ -30,11 +30,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.dmlab.bawoori.dmlib.data.DMLog;
-import com.dmlab.bawoori.dmlib.data.DMLogDao;
 import com.dmlab.bawoori.dmlib.data.DMGeofence;
 import com.dmlab.bawoori.dmlib.data.DMGeofenceDao;
 import com.dmlab.bawoori.dmlib.data.DMGeofenceDatabase;
+import com.dmlab.bawoori.dmlib.data.DMLog;
+import com.dmlab.bawoori.dmlib.data.DMLogDao;
 import com.dmlab.bawoori.dmlib.service.DMLocationServiceHelper;
 
 import java.util.ArrayList;

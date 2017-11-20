@@ -13,6 +13,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.dmlab.bawoori.dmlib.dmINF.DMService;
+
 
 public class RegFenceActivity extends AppCompatActivity {
     private static final String TAG = RegFenceActivity.class.getSimpleName();

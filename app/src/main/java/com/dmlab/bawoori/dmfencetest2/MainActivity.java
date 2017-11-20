@@ -19,6 +19,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.dmlab.bawoori.dmlib.dmINF.DMService;
+
 
 public class MainActivity extends AppCompatActivity implements PopupDialogFragment.Listener{
     private static final String TAG = MainActivity.class.getSimpleName();

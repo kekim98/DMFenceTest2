@@ -47,6 +47,7 @@
             android:name=".service.DMGeofenceNotificationService"
             android:exported="false"
             android:process=":bawoori"/>
+        <service android:name=".dmINF.DMService" />
     </application>
 
 </manifest>

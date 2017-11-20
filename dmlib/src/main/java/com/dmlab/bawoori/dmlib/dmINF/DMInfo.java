@@ -1,4 +1,4 @@
-package com.dmlab.bawoori.dmfencetest2;
+package com.dmlab.bawoori.dmlib.dmINF;
 
 /**
  * Created by bawoori on 17. 10. 31.

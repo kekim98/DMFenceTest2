@@ -11,6 +11,9 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dmlab.bawoori.dmlib.dmINF.DMInfo;
+import com.dmlab.bawoori.dmlib.dmINF.DMService;
+
 import java.util.Locale;
 
 

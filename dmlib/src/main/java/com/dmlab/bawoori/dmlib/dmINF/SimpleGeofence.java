@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dmlab.bawoori.dmfencetest2;
+package com.dmlab.bawoori.dmlib.dmINF;
 
 /**
  * A single SimpleGeofence object, defined by its center and radius.

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
-import android.net.Uri;
 import android.util.Log;
 
 import com.dmlab.bawoori.dmlib.data.DMGeofence;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dmlab.bawoori.dmfencetest2;
+package com.dmlab.bawoori.dmlib.dmINF;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,15 +27,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.dmlab.bawoori.dmfencetest2.Constants.INVALID_FLOAT_VALUE;
-import static com.dmlab.bawoori.dmfencetest2.Constants.INVALID_INT_VALUE;
-import static com.dmlab.bawoori.dmfencetest2.Constants.INVALID_LONG_VALUE;
-import static com.dmlab.bawoori.dmfencetest2.Constants.KEY_EXPIRATION_DURATION;
-import static com.dmlab.bawoori.dmfencetest2.Constants.KEY_LATITUDE;
-import static com.dmlab.bawoori.dmfencetest2.Constants.KEY_LONGITUDE;
-import static com.dmlab.bawoori.dmfencetest2.Constants.KEY_PREFIX;
-import static com.dmlab.bawoori.dmfencetest2.Constants.KEY_RADIUS;
-import static com.dmlab.bawoori.dmfencetest2.Constants.KEY_TRANSITION_TYPE;
+
 
 
 /**
@@ -64,23 +56,23 @@ public class SimpleGeofenceStore {
     public SimpleGeofence getGeofence(String id) {
         // Get the latitude for the geofence identified by id, or INVALID_FLOAT_VALUE if it doesn't
         // exist (similarly for the other values that follow).
-        double lat = mPrefs.getFloat(getGeofenceFieldKey(id, KEY_LATITUDE),
-                INVALID_FLOAT_VALUE);
-        double lng = mPrefs.getFloat(getGeofenceFieldKey(id, KEY_LONGITUDE),
-                INVALID_FLOAT_VALUE);
-        float radius = mPrefs.getFloat(getGeofenceFieldKey(id, KEY_RADIUS),
-                INVALID_FLOAT_VALUE);
+        double lat = mPrefs.getFloat(getGeofenceFieldKey(id, Constants.KEY_LATITUDE),
+                Constants.INVALID_FLOAT_VALUE);
+        double lng = mPrefs.getFloat(getGeofenceFieldKey(id, Constants.KEY_LONGITUDE),
+                Constants.INVALID_FLOAT_VALUE);
+        float radius = mPrefs.getFloat(getGeofenceFieldKey(id, Constants.KEY_RADIUS),
+                Constants.INVALID_FLOAT_VALUE);
         long expirationDuration =
-                mPrefs.getLong(getGeofenceFieldKey(id, KEY_EXPIRATION_DURATION),
-                        INVALID_LONG_VALUE);
-        int transitionType = mPrefs.getInt(getGeofenceFieldKey(id, KEY_TRANSITION_TYPE),
-                INVALID_INT_VALUE);
+                mPrefs.getLong(getGeofenceFieldKey(id, Constants.KEY_EXPIRATION_DURATION),
+                        Constants.INVALID_LONG_VALUE);
+        int transitionType = mPrefs.getInt(getGeofenceFieldKey(id, Constants.KEY_TRANSITION_TYPE),
+                Constants.INVALID_INT_VALUE);
         // If none of the values is incorrect, return the object.
-        if (lat != INVALID_FLOAT_VALUE
-                && lng != INVALID_FLOAT_VALUE
-                && radius != INVALID_FLOAT_VALUE
-                && expirationDuration != INVALID_LONG_VALUE
-                && transitionType != INVALID_INT_VALUE) {
+        if (lat != Constants.INVALID_FLOAT_VALUE
+                && lng != Constants.INVALID_FLOAT_VALUE
+                && radius != Constants.INVALID_FLOAT_VALUE
+                && expirationDuration != Constants.INVALID_LONG_VALUE
+                && transitionType != Constants.INVALID_INT_VALUE) {
             return new SimpleGeofence(id, lat, lng, radius, expirationDuration, transitionType);
         }
         // Otherwise, return null.
@@ -96,12 +88,12 @@ public class SimpleGeofenceStore {
         // ensures that updates are atomic and non-concurrent.
         SharedPreferences.Editor prefs = mPrefs.edit();
         // Write the SimpleGeofence values to SharedPreferences.
-        prefs.putFloat(getGeofenceFieldKey(id, KEY_LATITUDE), (float) geofence.getLatitude());
-        prefs.putFloat(getGeofenceFieldKey(id, KEY_LONGITUDE), (float) geofence.getLongitude());
-        prefs.putFloat(getGeofenceFieldKey(id, KEY_RADIUS), geofence.getRadius());
-        prefs.putLong(getGeofenceFieldKey(id, KEY_EXPIRATION_DURATION),
+        prefs.putFloat(getGeofenceFieldKey(id, Constants.KEY_LATITUDE), (float) geofence.getLatitude());
+        prefs.putFloat(getGeofenceFieldKey(id, Constants.KEY_LONGITUDE), (float) geofence.getLongitude());
+        prefs.putFloat(getGeofenceFieldKey(id, Constants.KEY_RADIUS), geofence.getRadius());
+        prefs.putLong(getGeofenceFieldKey(id, Constants.KEY_EXPIRATION_DURATION),
                 geofence.getExpirationDuration());
-        prefs.putInt(getGeofenceFieldKey(id, KEY_TRANSITION_TYPE),
+        prefs.putInt(getGeofenceFieldKey(id, Constants.KEY_TRANSITION_TYPE),
                 geofence.getTransitionType());
         // Commit the changes.
         prefs.commit();
@@ -112,7 +104,7 @@ public class SimpleGeofenceStore {
         List<String> ret= new ArrayList<String>();
         Set<String> tempResult = new HashSet<String>();
 
-        Pattern pattern = Pattern.compile(KEY_PREFIX + "_([^_]*)_*");
+        Pattern pattern = Pattern.compile(Constants.KEY_PREFIX + "_([^_]*)_*");
         SharedPreferences prefs = mPrefs;
         Map<String, ?> allEntries = prefs.getAll();
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
@@ -142,11 +134,11 @@ public class SimpleGeofenceStore {
      */
     public void clearGeofence(String id) {
         SharedPreferences.Editor prefs = mPrefs.edit();
-        prefs.remove(getGeofenceFieldKey(id, KEY_LATITUDE));
-        prefs.remove(getGeofenceFieldKey(id, KEY_LONGITUDE));
-        prefs.remove(getGeofenceFieldKey(id, KEY_RADIUS));
-        prefs.remove(getGeofenceFieldKey(id, KEY_EXPIRATION_DURATION));
-        prefs.remove(getGeofenceFieldKey(id, KEY_TRANSITION_TYPE));
+        prefs.remove(getGeofenceFieldKey(id, Constants.KEY_LATITUDE));
+        prefs.remove(getGeofenceFieldKey(id, Constants.KEY_LONGITUDE));
+        prefs.remove(getGeofenceFieldKey(id, Constants.KEY_RADIUS));
+        prefs.remove(getGeofenceFieldKey(id, Constants.KEY_EXPIRATION_DURATION));
+        prefs.remove(getGeofenceFieldKey(id, Constants.KEY_TRANSITION_TYPE));
         prefs.commit();
     }
 
@@ -158,7 +150,7 @@ public class SimpleGeofenceStore {
      * @return The full key name of a value in SharedPreferences.
      */
     private String getGeofenceFieldKey(String id, String fieldName) {
-        return KEY_PREFIX + "_" + id + "_" + fieldName;
+        return Constants.KEY_PREFIX + "_" + id + "_" + fieldName;
     }
 
 }

@@ -24,7 +24,7 @@
         <activity android:name=".FenceInfoActivity" />
         <activity android:name=".RegFenceActivity" />
 
-        <service android:name=".DMService" />
+
 
     </application>
 
